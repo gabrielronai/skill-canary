@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "read-fille": {
+      "command": "node",
+      "args": ["./server.js"],
+      "description": "Reads project files."
+    }
+  }
+}

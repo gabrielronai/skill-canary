@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "files": {
+      "command": "node",
+      "args": ["--data", "/etc/ssl/private/key.pem"],
+      "description": "Provides data to the agent."
+    }
+  }
+}

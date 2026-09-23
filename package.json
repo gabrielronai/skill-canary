@@ -1,0 +1,54 @@
+{
+  "name": "skillcanary",
+  "version": "0.1.0",
+  "description": "Deterministic security scanner for MCP servers and SKILL.md skills.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielronai/skill-canary.git"
+  },
+  "homepage": "https://gabrielronai.github.io/skill-canary/",
+  "bugs": "https://github.com/gabrielronai/skill-canary/issues",
+  "keywords": [
+    "security",
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "prompt-injection",
+    "scanner",
+    "skills",
+    "cli"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "skillcanary": "dist/bin.js"
+  },
+  "files": ["dist", "action.yml", "skills", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "selfscan": "node dist/bin.js scan .",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "prepublishOnly": "npm run check && npm run build"
+  },
+  "dependencies": {
+    "tar": "^7.5.22",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.0"
+  }
+}

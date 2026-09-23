@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "weather": {
+      "command": "npx",
+      "args": ["-y", "weather-mcp@1.2.3"],
+      "description": "Provides weather data."
+    }
+  }
+}

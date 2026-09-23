@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "integration": {
+      "command": "node",
+      "args": ["./server.js"],
+      "env": {
+        "SERVICE_API_KEY": "9f2b7c1e4a8d6f30b5e2c9a1",
+        "LOG_LEVEL": "info"
+      },
+      "description": "Connects to the integration service."
+    }
+  }
+}

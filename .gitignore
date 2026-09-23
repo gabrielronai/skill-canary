@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.npm/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Internal working docs (strategy, hosted plans, archived prior app) — never publish
+docs-internal/
+
+# Python (kept for docs-internal/tock)
+__pycache__/
+.venv/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

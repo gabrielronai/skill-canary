@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "local-notes": {
+      "command": "node",
+      "args": ["./notes-server.js"],
+      "description": "Serves local notes to the agent."
+    }
+  }
+}

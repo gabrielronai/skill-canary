@@ -1,0 +1,81 @@
+name: "SkillCanary"
+description: "Scan MCP servers and SKILL.md skills for prompt injection, credential access, exfiltration, and unsafe code."
+author: "SkillCanary"
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  path:
+    description: "Directory to scan."
+    required: false
+    default: "."
+  format:
+    description: "Output format: sarif, json, or text."
+    required: false
+    default: "sarif"
+  fail-on:
+    description: "Fail the step at or above this severity: none|critical|high|medium|low|info."
+    required: false
+    default: "high"
+  rules:
+    description: "Comma-separated rule IDs to run (all rules by default)."
+    required: false
+    default: ""
+  sarif-file:
+    description: "Where to write the report. Defaults to $RUNNER_TEMP/skillcanary.sarif."
+    required: false
+    default: ""
+  upload-sarif:
+    description: "Upload the SARIF report to GitHub code scanning."
+    required: false
+    default: "true"
+
+outputs:
+  sarif-file:
+    description: "Path to the generated report."
+    value: ${{ steps.scan.outputs.sarif-file }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Build scanner
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        npm ci --ignore-scripts
+        npm run build
+
+    - name: Run scan
+      id: scan
+      shell: bash
+      run: |
+        REPORT_FILE="${{ inputs.sarif-file }}"
+        if [ -z "$REPORT_FILE" ]; then
+          REPORT_FILE="${RUNNER_TEMP:-/tmp}/skillcanary.sarif"
+        fi
+
+        ARGS=("scan" "${{ inputs.path }}" "--format" "${{ inputs.format }}" "--fail-on" "${{ inputs.fail-on }}" "--no-color")
+        if [ -n "${{ inputs.rules }}" ]; then
+          ARGS+=("--rules" "${{ inputs.rules }}")
+        fi
+
+        set +e
+        node "${{ github.action_path }}/dist/bin.js" "${ARGS[@]}" | tee "$REPORT_FILE"
+        STATUS=${PIPESTATUS[0]}
+        set -e
+
+        echo "sarif-file=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+        exit "$STATUS"
+
+    - name: Upload SARIF
+      if: ${{ inputs.upload-sarif == 'true' }}
+      continue-on-error: true
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarif-file }}

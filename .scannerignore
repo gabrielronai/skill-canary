@@ -1,0 +1,7 @@
+# Paths the scanner skips, one path prefix per line. Blank lines and lines
+# starting with # are ignored. Pulled forward from M1 so the repo's own
+# intentionally-vulnerable fixtures do not fail the self-scan.
+
+test/fixtures
+test-skills
+docs-internal
