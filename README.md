@@ -10,14 +10,14 @@ never executes the content it scans.
 
 ## Status
 
-**v0.3.0 - pre-release, not yet on npm.** Working: 33 rules across injection,
+**v0.4.0 - pre-release, not yet on npm.** Working: 33 rules across injection,
 obfuscation, secrets, execution, exfiltration, install hooks, agent config,
 skills and instruction files, skill hygiene, and MCP (structural + live remote);
 discovery of skills, MCP configs, scripts, `package.json` hooks, `.claude`
 settings, and agent instruction files; text/JSON/SARIF output; inline
 `# skillcanary:ignore` suppressions, baseline files, and `--min-confidence`;
 remote MCP and npm/local package scanning; a composite GitHub Action; and an MCP
-server wrapper. 106 tests, self-scan clean. Not yet: npm publish.
+server wrapper. 109 tests, self-scan clean. Not yet: npm publish.
 
 ## Requirements
 
@@ -32,6 +32,7 @@ npm install
 npm run build
 node dist/bin.js scan .            # scan the current directory
 node dist/bin.js rules             # list rules
+node dist/bin.js rules --json      # machine-readable rule registry
 node dist/bin.js explain sec.env-read
 ```
 
@@ -42,6 +43,9 @@ scan [path] [options]
   --format <text|json|sarif>  Output format (default text)
   --fail-on <level>           Exit 1 at/above: none|critical|high|medium|low|info (default high)
   --rules <id,id>             Only run these rules
+  --min-confidence <level>    Drop findings below: low|medium|high (default low)
+  --baseline <file>           Suppress findings recorded in a baseline file
+  --write-baseline <file>     Write current findings to a baseline, then exit 0
   --mcp-url <url>             Also scan a remote MCP server live (opt-in, repeatable)
   --mcp-remote                Live-scan remote servers found in configs
   --package <spec>            Scan an npm package or local dir (never executed)
@@ -71,7 +75,9 @@ test/fixtures
 execution (`exec.*`), exfiltration (`exf.*`), install hooks (`hook.*`), agent
 config (`agent.*`), skill hygiene (`skill.*`, `hygiene.*`), and MCP (`mcp.*`).
 List them with `node dist/bin.js rules` or explain one with
-`node dist/bin.js explain <rule-id>`.
+`node dist/bin.js explain <rule-id>`. For integrations, `rules --json` prints the
+same registry as JSON; a committed copy lives in
+[`docs/rules.json`](docs/rules.json).
 
 ## Development
 
@@ -83,6 +89,7 @@ npm test            # vitest
 npm run build       # tsc -> dist
 npm run selfscan    # scan this repo; must be clean
 npm run check       # typecheck + lint + test
+npm run gen:rules   # regenerate docs/rules.json after changing rules
 ```
 
 ## Safety
@@ -109,7 +116,7 @@ Apache-2.0 (see [`LICENSE`](LICENSE)).
   `skills/skillcanary/SKILL.md` wrapper
 - [`docs/test-skills.md`](docs/test-skills.md) — reference for the malicious
   fixtures in `test-skills/`
-- [`docs/scanning-rules.md`](docs/scanning-rules.md) — the rule model, the 24
+- [`docs/scanning-rules.md`](docs/scanning-rules.md) — the rule model, the 33
   rules, and how they are configured
 - [`docs/rule-backlog.md`](docs/rule-backlog.md) — candidate rules and the
   process for adding them

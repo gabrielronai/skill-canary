@@ -247,11 +247,10 @@ These make rule growth cheap and safe. Tracked here; built separately.
 |---|---|---|
 | **E1** | Shared `src/rules/patterns.ts` | Pattern lists are duplicated (`IMPERATIVE_PATTERNS`, `DOWNLOAD_RUN_PATTERNS`); one source prevents drift as the catalogue grows. |
 | **E2** | Optional global pass `checkAll(entries)` | The per-entry `Rule.check` cannot express `corr.*` rules. Additive interface change. |
-| **E4** | Machine-readable rule registry → generated `rules` output, README table, site table, SARIF metadata | The site/README tables are hand-copied from `rules` output today and will silently drift. |
 | **E5** | FP corpus harness | Scan a pinned set of real public skills/MCP configs (never executed), snapshot findings, fail on new ones. Catches false positives **and** mints new candidates. |
 | **E6** | This doc + the harvest cadence below | The collection process itself. |
 
-Recommended order: **E4 → E1 → E5 → E2**.
+Recommended order: **E1 → E5 → E2**.
 
 ---
 
@@ -306,8 +305,8 @@ A candidate only ships when all of these are true:
 2. The rule is implemented in `src/rules/<category>.ts` with a stable ID,
    severity, confidence, message, and remediation.
 3. A unit test asserts **≥1 positive and ≥1 negative** (`test/rules-*.test.ts`).
-4. `docs/test-skills.md` and the site/README rule tables are updated (via E4
-   once it exists).
+4. `docs/test-skills.md` is updated, and `npm run gen:rules` refreshes
+   `docs/rules.json` (the registry test fails if docs drift).
 5. `npm run check` and `npm run selfscan` are green, and the FP corpus (E5)
    shows no new findings.
 6. `CHANGELOG.md` has an entry and the version is bumped.

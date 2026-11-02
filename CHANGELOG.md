@@ -9,6 +9,21 @@ explicitly, since they can change whether a build passes.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-02
+
+### Added
+
+- **Machine-readable registry:** `skillcanary rules --json` prints every rule
+  with its ID, severity, confidence, description, and `kinds`. The generated
+  copy lives in `docs/rules.json`; `npm run gen:rules` refreshes it.
+- **Drift guard:** the test suite compares `docs/rules.json` to the code and
+  checks that every rule is listed in the rule reference, usage guide, and
+  website.
+
+### Tests
+
+- **109 tests**, self-scan clean.
+
 ## [0.3.0] - 2026-11-02
 
 ### Added
@@ -95,7 +110,8 @@ Initial pre-release. Not yet published to npm.
 - Usage/command/CI/npm docs, the MCP-server guide, the fixture reference, the
   rule reference, and the rule backlog + harvest process.
 
-[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.3.0
+[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.4.0
+[0.3.0]: https://github.com/gabrielronai/skill-canary/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.2.0
 [0.1.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0

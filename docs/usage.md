@@ -3,7 +3,7 @@
 How to build, run, and test `SkillCanary` — including pointing it at **real
 skills** already installed on your machine.
 
-Status: **v0.3.0 pre-release** (not yet on npm). 33 rules, text/JSON/SARIF
+Status: **v0.4.0 pre-release** (not yet on npm). 33 rules, text/JSON/SARIF
 output, remote MCP and package scanning, inline suppressions and baselines. See
 [`../CHANGELOG.md`](../CHANGELOG.md) and the rule reference in
 [`scanning-rules.md`](./scanning-rules.md).
@@ -213,6 +213,7 @@ node dist/bin.js scan . --write-baseline skillcanary-baseline.json
 node dist/bin.js scan . --quiet             # exit code only
 node dist/bin.js scan . --no-color
 node dist/bin.js rules                      # list rules
+node dist/bin.js rules --json               # machine-readable registry
 node dist/bin.js explain sec.env-read       # explain one rule
 node dist/bin.js scan . --mcp-config "$HOME/.cursor/mcp.json"  # scan an external config
 node dist/bin.js scan . --mcp-url https://mcp.example.com/mcp  # live-scan a remote server
@@ -276,6 +277,9 @@ invalidate it. Commit it so CI stays green while existing findings are fixed.
 
 ## Rules
 
+The tables below mirror the registry; [`rules.json`](./rules.json) is the
+generated, machine-readable copy used by docs tooling and integrations.
+
 | ID | Severity | Detects |
 |---|---|---|
 | `inj.ignore-previous` | high | Instruction-hijack phrasing: "ignore previous instructions", "do not tell the user", "without asking" |
@@ -284,13 +288,21 @@ invalidate it. Commit it so CI stays green while existing findings are fixed.
 | `obf.zero-width` | high | Hidden zero-width / bidi formatting characters |
 | `obf.encoded-blob` | high | Base64/hex blob that decodes to suspicious instructions |
 | `obf.homoglyph` | medium | Mixed-script look-alike characters |
+| `obf.unicode-tag` | high | Unicode tag characters or long variation-selector runs |
 | `sec.env-read` | high/medium | Reading `.env`, SSH/AWS/gcloud credentials, keychains, browsers, or secret-looking env vars |
+| `sec.hardcoded-secret` | high | API keys or private-key material committed in a skill or script |
 | `exf.outbound` | critical | Sends data to an external URL |
-| `exf.webhook` | high | Known webhook/exfiltration endpoints |
+| `exf.webhook` | high | Known webhook/paste/exfiltration endpoints |
+| `exf.secret-to-network` | critical | Reads credentials and sends them out in one command |
+| `exf.base-url-hijack` | high | Redirects `ANTHROPIC_BASE_URL`/`OPENAI_BASE_URL` to a non-official host |
 | `exec.download-run` | critical | `curl … \| sh`, `wget … && ./` |
 | `exec.destructive` | high | `rm -rf`, `mkfs`, disk writes, `chmod -R 777` |
 | `exec.dynamic` | medium | `eval`/`exec`/`child_process`/shell execution |
+| `exec.reverse-shell` | critical | `/dev/tcp`, `nc -e`, `socat exec`, PowerShell reverse shell |
+| `exec.security-disable` | high | Disables antivirus, firewall, quarantine, or Gatekeeper |
 | `hook.fetch-run` | high | `package.json` install hooks that fetch and run code |
+| `agent.hook-exec` | high | `.claude` settings hook runs a command automatically |
+| `agent.unsafe-setting` | high | `bypassPermissions`, sandbox disabled, wildcard allow-list |
 | `skill.permissions` | medium | Skill declares broad `allowed-tools` |
 | `hygiene.unpinned` | low | Unpinned `npx -y`/`uvx` in a skill or script |
 | `hygiene.http` | low | Plaintext external HTTP URL |
@@ -301,6 +313,7 @@ MCP config rules (run only on MCP config files):
 |---|---|---|
 | `mcp.invalid` | info | Config could not be parsed |
 | `mcp.imperative-desc` | high | Instruction language in server/tool descriptions |
+| `mcp.schema-injection` | high | Instruction-like text in tool `inputSchema` fields |
 | `mcp.shadow` | high | Server/tool names mimicking common tools |
 | `mcp.overreach` | medium | Secret-like env keys or system paths in args |
 | `mcp.args-exec` | high | `curl … \| sh`, `bash -c`, `rm -rf` in command/args |

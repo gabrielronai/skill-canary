@@ -81,6 +81,14 @@ describe("cli", () => {
     expect(out()).toContain("mcp.imperative-desc");
   });
 
+  it("emits the rule registry as JSON", async () => {
+    const { io, out } = capture();
+    expect(await main(["rules", "--json"], io)).toBe(0);
+    const rules = JSON.parse(out());
+    expect(rules).toHaveLength(33);
+    expect(rules[0]).toMatchObject({ id: "inj.ignore-previous", severity: "high" });
+  });
+
   it("returns 2 for a missing directory", async () => {
     const { io } = capture();
     expect(await main(["scan", "does/not/exist"], io)).toBe(2);

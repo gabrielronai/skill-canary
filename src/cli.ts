@@ -7,6 +7,7 @@ import { packageSpecFromServer } from "./packages/spec.js";
 import { formatJson } from "./report/json.js";
 import { formatSarif } from "./report/sarif.js";
 import { formatText } from "./report/text.js";
+import { ruleCatalog } from "./rules/catalog.js";
 import { ALL_RULES, ALL_RULE_IDS } from "./rules/registry.js";
 import type { Confidence, FailThreshold, Finding } from "./rules/types.js";
 import { meetsConfidence, meetsThreshold } from "./rules/types.js";
@@ -39,7 +40,7 @@ const HELP = `skillcanary — security scanner for MCP servers and SKILL.md skil
 
 Usage:
   skillcanary scan [path]        Scan a directory (default: .)
-  skillcanary rules              List available rules
+  skillcanary rules [--json]   List available rules
   skillcanary explain <rule-id>  Explain a rule
   skillcanary mcp                Run the MCP server over stdio (for AI agents)
 
@@ -387,7 +388,11 @@ async function runScan(argv: string[], io: IO): Promise<number> {
   return sorted.some((finding) => meetsThreshold(finding.severity, args.failOn)) ? 1 : 0;
 }
 
-function listRules(io: IO): void {
+function listRules(io: IO, json: boolean): void {
+  if (json) {
+    io.out(`${JSON.stringify(ruleCatalog(), null, 2)}\n`);
+    return;
+  }
   const lines = ALL_RULES.map(
     (rule) => `${rule.severity.padEnd(8)} ${rule.id.padEnd(22)} ${rule.description}`,
   );
@@ -422,7 +427,7 @@ export async function main(argv: string[], io: IO = DEFAULT_IO): Promise<number>
     case "scan":
       return runScan(rest, io);
     case "rules":
-      listRules(io);
+      listRules(io, rest.includes("--json"));
       return 0;
     case "explain":
       return explainRule(rest[0], io);

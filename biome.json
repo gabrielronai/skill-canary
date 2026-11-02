@@ -15,6 +15,14 @@
     "lineWidth": 100
   },
   "files": {
-    "ignore": ["dist", "node_modules", "coverage", "test/fixtures", "test-skills", "docs-internal"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      "coverage",
+      "test/fixtures",
+      "test-skills",
+      "docs-internal",
+      "docs/rules.json"
+    ]
   }
 }

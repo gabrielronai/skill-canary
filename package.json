@@ -1,6 +1,6 @@
 {
   "name": "skillcanary",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Deterministic security scanner for MCP servers and SKILL.md skills.",
   "license": "Apache-2.0",
   "repository": {
@@ -39,7 +39,8 @@
     "test:watch": "vitest",
     "selfscan": "node dist/bin.js scan .",
     "check": "npm run typecheck && npm run lint && npm run test",
-    "prepublishOnly": "npm run check && npm run build"
+    "prepublishOnly": "npm run check && npm run build",
+    "gen:rules": "npm run build && node dist/scripts/gen-rules.js"
   },
   "dependencies": {
     "tar": "^7.5.22",

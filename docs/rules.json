@@ -1,0 +1,345 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "inj.ignore-previous",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Detects instruction-hijack phrasing commonly used in prompt injection.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "inj.hidden-instruction",
+      "severity": "high",
+      "confidence": "low",
+      "description": "Instruction-like content hidden in HTML comments.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "inj.system-prompt",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Attempts to reveal, replace, or ignore the system prompt.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.zero-width",
+      "severity": "high",
+      "confidence": "high",
+      "description": "Detects hidden zero-width and bidirectional formatting characters.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.unicode-tag",
+      "severity": "high",
+      "confidence": "high",
+      "description": "Unicode tag characters or long variation-selector runs hide text.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.encoded-blob",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Encoded blob (base64/hex) that decodes to suspicious instructions.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.homoglyph",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Mixed-script characters that may spoof words or identifiers.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "sec.env-read",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Detects access to credential stores and secret-looking environment variables.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "sec.hardcoded-secret",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Detects credentials committed in skill or config content.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "instructions",
+        "agentconfig"
+      ]
+    },
+    {
+      "id": "exec.destructive",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Destructive command (broad delete, wipe, or disk write).",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.download-run",
+      "severity": "critical",
+      "confidence": "high",
+      "description": "Downloads and executes a remote script.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.dynamic",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Dynamic code execution (eval/exec/shell).",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.reverse-shell",
+      "severity": "critical",
+      "confidence": "high",
+      "description": "Reverse or bind shell construction.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.security-disable",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Disables an OS security control.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exf.outbound",
+      "severity": "critical",
+      "confidence": "medium",
+      "description": "Sends local data to an external URL.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exf.webhook",
+      "severity": "high",
+      "confidence": "high",
+      "description": "Known webhook or exfiltration endpoint.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exf.secret-to-network",
+      "severity": "critical",
+      "confidence": "high",
+      "description": "Reads credentials and sends them over the network in one step.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exf.base-url-hijack",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Points a model API base URL at a non-official host.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions",
+        "mcp"
+      ]
+    },
+    {
+      "id": "hook.fetch-run",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Install/build hook downloads or executes code.",
+      "kinds": [
+        "config"
+      ]
+    },
+    {
+      "id": "agent.hook-exec",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Agent config registers a command hook that runs automatically.",
+      "kinds": [
+        "agentconfig"
+      ]
+    },
+    {
+      "id": "agent.unsafe-setting",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Agent config weakens sandboxing, approvals, or MCP consent.",
+      "kinds": [
+        "agentconfig"
+      ]
+    },
+    {
+      "id": "skill.permissions",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Skill declares broad tool permissions.",
+      "kinds": [
+        "skill"
+      ]
+    },
+    {
+      "id": "hygiene.unpinned",
+      "severity": "low",
+      "confidence": "medium",
+      "description": "Unpinned package runner (npx -y / uvx).",
+      "kinds": [
+        "skill",
+        "script"
+      ]
+    },
+    {
+      "id": "hygiene.http",
+      "severity": "low",
+      "confidence": "low",
+      "description": "Plaintext HTTP URL (not localhost).",
+      "kinds": [
+        "skill",
+        "script",
+        "config"
+      ]
+    },
+    {
+      "id": "mcp.invalid",
+      "severity": "info",
+      "confidence": "high",
+      "description": "An MCP config file could not be parsed as JSON/YAML.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.imperative-desc",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Server/tool descriptions contain instructions aimed at the model.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.schema-injection",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Tool input-schema text contains instructions or sensitive paths.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.shadow",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Server/tool names mimic well-known tools (shadowing/typosquat).",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.overreach",
+      "severity": "medium",
+      "confidence": "medium",
+      "description": "Server requests secrets or filesystem access beyond a likely purpose.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.args-exec",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Server command/args download or execute code.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.transport",
+      "severity": "medium",
+      "confidence": "medium",
+      "description": "Remote MCP server uses plaintext HTTP or a loopback/IP-literal host.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.secrets",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Hardcoded credential-looking values in env or headers.",
+      "kinds": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "mcp.hygiene",
+      "severity": "low",
+      "confidence": "medium",
+      "description": "Unpinned package runner (npx -y / uvx) fetches a floating version.",
+      "kinds": [
+        "mcp"
+      ]
+    }
+  ]
+}

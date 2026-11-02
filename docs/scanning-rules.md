@@ -40,6 +40,10 @@ testable.
 
 ## The 33 rules
 
+`skillcanary rules --json` prints this table as JSON; [`rules.json`](./rules.json)
+is the generated copy and must be refreshed with `npm run gen:rules` after any
+rule change (a test fails if it drifts).
+
 | Rule | Sev | Conf | `kinds` | Detection |
 |---|---|---|---|---|
 | `inj.ignore-previous` | high | medium | all | line regex over `IMPERATIVE_PATTERNS` (ignore/disregard previous instructions, "do not tell the user", "without asking") |
