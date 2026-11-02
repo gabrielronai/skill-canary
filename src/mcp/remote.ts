@@ -1,5 +1,6 @@
 import { checkUrlSafety } from "../net/ssrf.js";
 import type { McpServer, McpTool } from "./model.js";
+import { collectSchemaText } from "./parse.js";
 
 export interface RemoteOptions {
   headers?: Record<string, string>;
@@ -36,7 +37,12 @@ function extractTools(json: unknown): McpTool[] {
     }
     const description =
       record && typeof record.description === "string" ? record.description : undefined;
-    tools.push(description === undefined ? { name } : { name, description });
+    const schemaText = collectSchemaText(record?.inputSchema);
+    const tool: McpTool = schemaText.length > 0 ? { name, schemaText } : { name };
+    if (description !== undefined) {
+      tool.description = description;
+    }
+    tools.push(tool);
   }
   return tools;
 }

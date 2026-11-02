@@ -8,6 +8,8 @@
 const FORMAT_CHARS = "\\u200B-\\u200F\\u202A-\\u202E\\u2060-\\u2064\\u2066-\\u2069\\uFEFF";
 const FORMAT_STRIP_RE = new RegExp(`[${FORMAT_CHARS}]`, "g");
 const FORMAT_TEST_RE = new RegExp(`[${FORMAT_CHARS}]`);
+// Unicode tag characters (U+E0000-U+E007F) are invisible and can smuggle ASCII.
+const TAG_STRIP_RE = /[\u{E0000}-\u{E007F}]/gu;
 // biome-ignore lint/suspicious/noControlCharactersInRegex: matching ANSI escape sequences is the intent
 const ANSI_RE = /\u001b\[[0-9;]*[A-Za-z]/g;
 
@@ -26,7 +28,15 @@ export function hasFormatChars(input: string): boolean {
 }
 
 export function stripFormatChars(input: string): string {
-  return input.replace(FORMAT_STRIP_RE, "");
+  return input.replace(TAG_STRIP_RE, "").replace(FORMAT_STRIP_RE, "");
+}
+
+/** Replace Unicode tag characters with visible `\u{E00XX}` escapes. */
+export function escapeTagChars(input: string): string {
+  return input.replace(TAG_STRIP_RE, (match) => {
+    const code = match.codePointAt(0)?.toString(16).toUpperCase() ?? "0";
+    return `\\u{${code}}`;
+  });
 }
 
 export function stripAnsi(input: string): string {

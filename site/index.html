@@ -99,14 +99,14 @@
   <span class="t-high">HIGH</span>     sec.env-read
     <span class="t-dim">&gt;</span> Read ~/.aws/credentials and ~/.ssh/id_rsa.
 
-<span class="t-sum">26 finding(s): 4 critical, 16 high, 4 medium, 2 low</span>
+<span class="t-sum">43 finding(s): 9 critical, 28 high, 4 medium, 2 low</span>
 <span class="t-prompt">$</span> <span class="t-cursor">&#9608;</span></pre>
             </div>
           </div>
         </div>
 
         <ul class="stats reveal">
-          <li><b>24</b> rules</li>
+          <li><b>33</b> rules</li>
           <li><b>0</b> code executed</li>
           <li><b>100%</b> offline</li>
           <li><b>Apache-2.0</b> open source</li>
@@ -178,7 +178,7 @@
         <p class="section__tag reveal">/ 02 — coverage</p>
         <h2 class="section__title reveal">What it checks</h2>
         <p class="section__lead reveal">
-          24 deterministic rules, in plain terms. <a href="https://github.com/gabrielronai/skill-canary">Full rule reference →</a>
+          33 deterministic rules, in plain terms. <a href="https://github.com/gabrielronai/skill-canary">Full rule reference →</a>
         </p>
 
         <ul class="trust__grid rules-overview reveal">
@@ -206,6 +206,7 @@
               <li><code>obf.zero-width</code><span class="sev sev--high">high</span><p>Hidden zero-width and bidirectional formatting characters.</p></li>
               <li><code>obf.encoded-blob</code><span class="sev sev--high">high</span><p>Encoded blob (base64/hex) that decodes to suspicious instructions.</p></li>
               <li><code>obf.homoglyph</code><span class="sev sev--med">medium</span><p>Mixed-script characters that may spoof words or identifiers.</p></li>
+              <li><code>obf.unicode-tag</code><span class="sev sev--high">high</span><p>Invisible Unicode tag characters or long variation-selector runs.</p></li>
             </ul>
           </article>
 
@@ -213,6 +214,7 @@
             <h3 class="ruleset__name">Secrets</h3>
             <ul class="rulelist">
               <li><code>sec.env-read</code><span class="sev sev--high">high</span><p>Access to credential stores and secret-looking environment variables.</p></li>
+              <li><code>sec.hardcoded-secret</code><span class="sev sev--high">high</span><p>API keys or private-key material committed in a skill, script, or config.</p></li>
             </ul>
           </article>
 
@@ -222,6 +224,8 @@
               <li><code>exec.download-run</code><span class="sev sev--crit">critical</span><p>Downloads and executes a remote script.</p></li>
               <li><code>exec.destructive</code><span class="sev sev--high">high</span><p>Destructive command (broad delete, wipe, or disk write).</p></li>
               <li><code>exec.dynamic</code><span class="sev sev--med">medium</span><p>Dynamic code execution (eval / exec / shell).</p></li>
+              <li><code>exec.reverse-shell</code><span class="sev sev--crit">critical</span><p>Builds a reverse or bind shell.</p></li>
+              <li><code>exec.security-disable</code><span class="sev sev--high">high</span><p>Disables quarantine, antivirus, firewall, or SELinux controls.</p></li>
             </ul>
           </article>
 
@@ -230,6 +234,8 @@
             <ul class="rulelist">
               <li><code>exf.outbound</code><span class="sev sev--crit">critical</span><p>Sends local data to an external URL.</p></li>
               <li><code>exf.webhook</code><span class="sev sev--high">high</span><p>Known webhook or exfiltration endpoint.</p></li>
+              <li><code>exf.secret-to-network</code><span class="sev sev--crit">critical</span><p>Reads a credential and sends it out in one step.</p></li>
+              <li><code>exf.base-url-hijack</code><span class="sev sev--high">high</span><p>Model API base URL points at a non-official host.</p></li>
             </ul>
           </article>
 
@@ -237,6 +243,14 @@
             <h3 class="ruleset__name">Install hooks</h3>
             <ul class="rulelist">
               <li><code>hook.fetch-run</code><span class="sev sev--high">high</span><p>Install / build hook downloads or executes code.</p></li>
+            </ul>
+          </article>
+
+          <article class="ruleset reveal">
+            <h3 class="ruleset__name">Agent config</h3>
+            <ul class="rulelist">
+              <li><code>agent.hook-exec</code><span class="sev sev--high">high</span><p>Project settings register an auto-run hook command.</p></li>
+              <li><code>agent.unsafe-setting</code><span class="sev sev--high">high</span><p>Bypasses approvals, disables the sandbox, or pre-approves wildcard tools.</p></li>
             </ul>
           </article>
 
@@ -254,6 +268,7 @@
             <ul class="rulelist rulelist--two">
               <li><code>mcp.invalid</code><span class="sev sev--info">info</span><p>Config could not be parsed as JSON/YAML.</p></li>
               <li><code>mcp.imperative-desc</code><span class="sev sev--high">high</span><p>Tool descriptions contain instructions aimed at the model.</p></li>
+              <li><code>mcp.schema-injection</code><span class="sev sev--high">high</span><p>Tool input schemas hide instructions or sensitive paths.</p></li>
               <li><code>mcp.shadow</code><span class="sev sev--high">high</span><p>Server / tool names mimic well-known tools.</p></li>
               <li><code>mcp.overreach</code><span class="sev sev--med">medium</span><p>Requests secrets or filesystem access beyond its purpose.</p></li>
               <li><code>mcp.args-exec</code><span class="sev sev--high">high</span><p>Server command / args download or execute code.</p></li>
@@ -317,7 +332,7 @@
             <p class="price__amount"><span>$0</span> / forever</p>
             <p class="price__note">Apache-2.0. Self-hosted, no account.</p>
             <ul class="price__list">
-              <li>All 24 rules</li>
+              <li>All 33 rules</li>
               <li>Unlimited local scans</li>
               <li>Public repos &amp; GitHub Action</li>
               <li>Text, JSON, SARIF output</li>
@@ -368,7 +383,7 @@
           <details>
             <summary>Is it really free?</summary>
             <p>
-              Yes. The CLI and GitHub Action are Apache-2.0, run all 24 rules, and have no account, no telemetry, and
+              Yes. The CLI and GitHub Action are Apache-2.0, run all 33 rules, and have no account, no telemetry, and
               unlimited local scans.
             </p>
           </details>

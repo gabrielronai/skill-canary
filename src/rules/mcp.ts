@@ -1,5 +1,5 @@
 import type { McpServer } from "../mcp/model.js";
-import { redactSecrets, toSafeSnippet } from "../util/text.js";
+import { hasFormatChars, redactSecrets, toSafeSnippet } from "../util/text.js";
 import type { Finding, Rule } from "./types.js";
 
 const MCP = ["mcp"] as const;
@@ -86,6 +86,47 @@ const imperativeRule: Rule = {
           );
           break;
         }
+      }
+    }
+    return findings;
+  },
+};
+
+const SCHEMA_SENSITIVE_RE =
+  /(?:~[\/\\]\.ssh|\/\.ssh[\/\\]|\.aws[\/\\]|id_rsa|\/etc\/(?:passwd|shadow)|\.kube[\/\\]config|(?:^|\s)\.env\b)/i;
+
+const schemaInjectionRule: Rule = {
+  id: "mcp.schema-injection",
+  severity: "high",
+  confidence: "medium",
+  description: "Tool input-schema text contains instructions or sensitive paths.",
+  kinds: [...MCP],
+  check(entry): Finding[] {
+    const findings: Finding[] = [];
+    for (const server of servers(entry)) {
+      for (const tool of server.tools) {
+        const texts = tool.schemaText ?? [];
+        const suspicious = texts.find(
+          (text) =>
+            IMPERATIVE.some((pattern) => pattern.test(text)) ||
+            hasFormatChars(text) ||
+            SCHEMA_SENSITIVE_RE.test(text),
+        );
+        if (suspicious === undefined) {
+          continue;
+        }
+        findings.push(
+          finding({
+            ruleId: "mcp.schema-injection",
+            severity: "high",
+            confidence: "medium",
+            message: `Input schema for tool "${tool.name}" on server "${server.name}" contains instruction-like or sensitive content.`,
+            file: entry.path,
+            line: server.line,
+            snippet: toSafeSnippet(suspicious),
+            remediation: "Review the schema; tool metadata must not instruct the model.",
+          }),
+        );
       }
     }
     return findings;
@@ -447,6 +488,7 @@ const hygieneRule: Rule = {
 export const mcpRules: Rule[] = [
   invalidRule,
   imperativeRule,
+  schemaInjectionRule,
   shadowRule,
   overreachRule,
   argsExecRule,

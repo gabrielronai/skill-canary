@@ -13,5 +13,5 @@ Index of the current docs for the SkillCanary scanner. The repository root
 | [npm.md](./npm.md) | Publishing to npm |
 | [mcp-server.md](./mcp-server.md) | Run the scanner as an MCP server |
 | [test-skills.md](./test-skills.md) | Reference for the malicious fixtures in `test-skills/` |
-| [scanning-rules.md](./scanning-rules.md) | The 24 rules, how they are built, and how they are configured |
+| [scanning-rules.md](./scanning-rules.md) | The 33 rules, how they are built, and how they are configured |
 | [rule-backlog.md](./rule-backlog.md) | Candidate rules and the harvest/promotion process |

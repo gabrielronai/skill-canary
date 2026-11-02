@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": ["Bash(npm test)", "Read(src/**)"]
+  },
+  "env": {
+    "LOG_LEVEL": "info"
+  }
+}

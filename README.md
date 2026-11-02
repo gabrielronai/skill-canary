@@ -10,12 +10,13 @@ never executes the content it scans.
 
 ## Status
 
-**v0.1.0 — pre-release, not yet on npm.** Working: 24 rules across injection,
-obfuscation, secrets, execution, exfiltration, install hooks, skill hygiene, and
-MCP (structural + live remote); discovery of skills, MCP configs, scripts, and
-`package.json` hooks; text/JSON/SARIF output; remote MCP and npm/local package
-scanning; a composite GitHub Action; and an MCP server wrapper. 75 tests, self-scan
-clean. Not yet: npm publish.
+**v0.2.0 — pre-release, not yet on npm.** Working: 33 rules across injection,
+obfuscation, secrets, execution, exfiltration, install hooks, agent config,
+skills and instruction files, skill hygiene, and MCP (structural + live remote);
+discovery of skills, MCP configs, scripts, `package.json` hooks, `.claude`
+settings, and agent instruction files; text/JSON/SARIF output; remote MCP and
+npm/local package scanning; a composite GitHub Action; and an MCP server wrapper.
+98 tests, self-scan clean. Not yet: npm publish.
 
 ## Requirements
 
@@ -65,10 +66,10 @@ test/fixtures
 
 ## Rules
 
-24 rules across injection (`inj.*`), obfuscation (`obf.*`), secrets (`sec.*`),
-execution (`exec.*`), exfiltration (`exf.*`), install hooks (`hook.*`), skill
-hygiene (`skill.*`, `hygiene.*`), and MCP (`mcp.*`). List them with
-`node dist/bin.js rules` or explain one with
+33 rules across injection (`inj.*`), obfuscation (`obf.*`), secrets (`sec.*`),
+execution (`exec.*`), exfiltration (`exf.*`), install hooks (`hook.*`), agent
+config (`agent.*`), skill hygiene (`skill.*`, `hygiene.*`), and MCP (`mcp.*`).
+List them with `node dist/bin.js rules` or explain one with
 `node dist/bin.js explain <rule-id>`.
 
 ## Development

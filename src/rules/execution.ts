@@ -1,7 +1,7 @@
 import { toSafeSnippet } from "../util/text.js";
 import type { Confidence, FileEntry, FileKind, Finding, Rule, Severity } from "./types.js";
 
-const KINDS: FileKind[] = ["skill", "script", "config"];
+const KINDS: FileKind[] = ["skill", "script", "config", "agentconfig", "instructions"];
 
 /** `curl … | sh` and friends. Exported for the install-hook rule. */
 export const DOWNLOAD_RUN_PATTERNS: RegExp[] = [
@@ -31,6 +31,26 @@ const DYNAMIC_PATTERNS: RegExp[] = [
   /\bsubprocess\.[A-Za-z_]+\([^)\n]*shell\s*=\s*True/i,
   /\bRuntime\.getRuntime\(\)\.exec\b/,
   /\bpopen\s*\(/,
+];
+
+const REVERSE_SHELL_PATTERNS: RegExp[] = [
+  /\/dev\/(?:tcp|udp)\//i,
+  /\b(?:nc|ncat)\b[^\n]*\s-e\s/i,
+  /\bsocat\b[^\n]*\bexec:/i,
+  /\bbash\s+-i\b[^\n]*(?:>&|0>&1|\/dev\/tcp)/i,
+  /\bmkfifo\b[^\n]*\b(?:nc|ncat)\b/i,
+  /\bNew-Object\s+(?:System\.)?Net\.Sockets\.TCPClient\b/i,
+];
+
+const SECURITY_DISABLE_PATTERNS: RegExp[] = [
+  /\bxattr\s+-[a-z]*d\s+com\.apple\.quarantine\b/i,
+  /\bspctl\s+--master-disable\b/i,
+  /\bcsrutil\s+disable\b/i,
+  /\b(?:Set|Add)-MpPreference\b[^\n]*(?:DisableRealtimeMonitoring|ExclusionPath|ExclusionProcess|DisableIOAVProtection|DisableScriptScanning|DisableAntiSpyware)\b/i,
+  /\b(?:ufw\s+disable|setenforce\s+0|iptables\s+-F)\b/i,
+  /\bdefaults\s+write\b[^\n]*(?:LSQuarantine|com\.apple\.quarantine)\b/i,
+  /\bDisableAntiSpyware\b/i,
+  /\b(?:disable|bypass|turn\s+off)\b[^\n]{0,40}\b(?:antivirus|anti-virus|defender|smartscreen|firewall|gatekeeper|quarantine)\b/i,
 ];
 
 function matchLines(
@@ -111,5 +131,41 @@ export const dynamicExecRule: Rule = {
       "low",
       "Dynamic code execution on potentially untrusted input.",
       "Avoid eval/exec and shell invocation on untrusted input.",
+    ),
+};
+
+export const reverseShellRule: Rule = {
+  id: "exec.reverse-shell",
+  severity: "critical",
+  confidence: "high",
+  description: "Reverse or bind shell construction.",
+  kinds: KINDS,
+  check: (entry) =>
+    matchLines(
+      entry,
+      REVERSE_SHELL_PATTERNS,
+      "exec.reverse-shell",
+      "critical",
+      "high",
+      "Builds a reverse or bind shell.",
+      "Remove shell access; if the skill needs one, vendor and review it.",
+    ),
+};
+
+export const securityDisableRule: Rule = {
+  id: "exec.security-disable",
+  severity: "high",
+  confidence: "medium",
+  description: "Disables an OS security control.",
+  kinds: KINDS,
+  check: (entry) =>
+    matchLines(
+      entry,
+      SECURITY_DISABLE_PATTERNS,
+      "exec.security-disable",
+      "high",
+      "medium",
+      "Disables an operating-system security control.",
+      "Do not weaken antivirus, firewall, quarantine, or sandbox protections.",
     ),
 };

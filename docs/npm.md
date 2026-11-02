@@ -8,10 +8,10 @@ name must be globally unique).
 
 - Name **`skillcanary`** verified unclaimed on the public registry
   (`npm view skillcanary` → 404).
-- `package.json`: name, version `0.1.0`, description, `license` (Apache-2.0),
+- `package.json`: name, version `0.2.0`, description, `license` (Apache-2.0),
   `bin`, `files`, `publishConfig.access=public`, `repository`, `homepage`, and
   `bugs` (github.com/gabrielronai/skill-canary) are set.
-- `src/version.ts` `TOOL_VERSION` matches `package.json` (`0.1.0`).
+- `src/version.ts` `TOOL_VERSION` matches `package.json` (`0.2.0`).
 - `npm pack --dry-run` file list verified: `dist/**`, `action.yml`, `LICENSE`,
   `README.md`, `package.json`, `skills/skillcanary/SKILL.md`.
 - Not yet authenticated to npm on this machine (`npm login` required, 2FA).

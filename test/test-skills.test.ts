@@ -60,6 +60,19 @@ describe("malicious skill fixtures (M0 detections)", () => {
     expect(ruleIds("excessive-permissions").has("skill.permissions")).toBe(true);
     expect(ruleIds("hidden-html-comment").has("inj.hidden-instruction")).toBe(true);
   });
+
+  it("flags the 2026 rule fixtures", () => {
+    expect(ruleIds("pipe-credentials-to-network").has("exf.secret-to-network")).toBe(true);
+    expect(ruleIds("hijack-model-endpoint").has("exf.base-url-hijack")).toBe(true);
+    expect(ruleIds("hidden-unicode-tag").has("obf.unicode-tag")).toBe(true);
+    expect(ruleIds("reverse-shell").has("exec.reverse-shell")).toBe(true);
+    expect(ruleIds("disable-security-controls").has("exec.security-disable")).toBe(true);
+    expect(ruleIds("hardcoded-api-key").has("sec.hardcoded-secret")).toBe(true);
+    expect(ruleIds("agent-startup-hook").has("agent.hook-exec")).toBe(true);
+    expect(ruleIds("agent-startup-hook").has("agent.unsafe-setting")).toBe(true);
+    expect(ruleIds("instruction-file-injection").has("inj.ignore-previous")).toBe(true);
+    expect(ruleIds("mcp-tool-schema-injection").has("mcp.schema-injection")).toBe(true);
+  });
 });
 
 describe("safe skill fixtures (no false positives)", () => {

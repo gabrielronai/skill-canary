@@ -9,6 +9,33 @@ explicitly, since they can change whether a build passes.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-02
+
+### Added
+
+- **9 rules (33 total):** `exf.secret-to-network`, `exf.base-url-hijack`,
+  `obf.unicode-tag`, `exec.reverse-shell`, `exec.security-disable`,
+  `sec.hardcoded-secret`, `agent.hook-exec`, `agent.unsafe-setting`, and
+  `mcp.schema-injection`.
+- **Agent config scanning:** `.claude/settings.json`,
+  `.claude/settings.local.json`, and `.claude/hooks/hooks.json` are classified as
+  `agentconfig` and checked for auto-run hooks and unsafe settings.
+- **Instruction files:** `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `.cursorrules`,
+  `.windsurfrules`, `.clinerules`, `.cursor/rules/*.mdc`, and
+  `.github/copilot-instructions.md` are classified as `instructions` and run
+  through the injection, obfuscation, secret, and execution rules.
+- **MCP input schemas:** tool `inputSchema` descriptions/defaults/enums are
+  captured and scanned by `mcp.schema-injection`.
+
+### Changed
+
+- `sec.env-read` now also covers kube/docker config, shell history, and
+  `/etc/passwd`/`/etc/shadow`.
+- `exf.webhook` now recognizes common paste services.
+- Execution and exfiltration rules also apply to `instructions` and
+  `agentconfig` files.
+- **98 tests**, self-scan clean.
+
 Candidate rules and the plan for growing the ruleset are tracked in
 [`docs/rule-backlog.md`](docs/rule-backlog.md).
 
@@ -45,5 +72,6 @@ Initial pre-release. Not yet published to npm.
 - Usage/command/CI/npm docs, the MCP-server guide, the fixture reference, the
   rule reference, and the rule backlog + harvest process.
 
-[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.2.0
 [0.1.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0

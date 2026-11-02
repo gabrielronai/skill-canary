@@ -115,7 +115,7 @@ For every task:
 - You need a credential, a secret, or a production resource you don't have access to.
 - The user's stated goal and the literal request appear to conflict.
 
-**Proceed without asking when:**
+**Proceed directly when:**
 - The task is trivial and reversible (typo, rename a local variable, add a log line).
 - The ambiguity can be resolved by reading the code or running a command.
 - The user has already answered the question once in this session.
@@ -190,7 +190,7 @@ site/, action.yml, docs/
 - `.scannerignore` (path prefixes) excludes `test-skills`; Biome also ignores `test-skills/` and `test/fixtures/`.
 
 ### Forbidden
-- Do not commit secrets, API keys, or .env files.
+- Do not commit secrets, API keys, or environment files.
 - Do not execute, `import`, or fetch scanned content anywhere in the scan path.
 - No network in the scan path except opt-in `--mcp-url` / `--mcp-remote` / `--scan-packages`, all behind the SSRF guard.
 

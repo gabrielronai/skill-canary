@@ -17,8 +17,8 @@ testable.
   snippet?, remediation? }`.
 - `Severity` = `critical | high | medium | low | info`;
   `Confidence` = `high | medium | low`.
-- `FileKind` = `skill | mcp | script | config | other`; `kinds` scopes a rule to
-  file kinds.
+- `FileKind` = `skill | mcp | script | config | agentconfig | instructions |
+  other`; `kinds` scopes a rule to file kinds.
 - `meetsThreshold` compares a finding's severity to the `--fail-on` level
   (`none` never fails).
 
@@ -38,7 +38,7 @@ testable.
 - `evaluate(entries, { rules })` =
   `sortFindings(runRules(entries, selectRules(rules)))`.
 
-## The 24 rules
+## The 33 rules
 
 | Rule | Sev | Conf | `kinds` | Detection |
 |---|---|---|---|---|
@@ -48,18 +48,27 @@ testable.
 | `obf.zero-width` | high | high | all | zero-width/bidi format chars (`hasFormatChars`), snippet escaped as `\uXXXX` |
 | `obf.encoded-blob` | high | med/low | all | base64 (>= 40 chars) decoded and keyword-scanned; hex (>= 64) is lower confidence |
 | `obf.homoglyph` | medium | low | all | one token mixing Latin + Cyrillic/Greek (confusables) |
-| `sec.env-read` | high/med | medium | all | `.env`, AWS/SSH/gcloud/netrc/npmrc/keychain/cookies → high; secret-looking env access → medium |
-| `exec.destructive` | high | medium | skill, script, config | `rm -rf`, `mkfs`, `dd`, fork bomb, `chmod -R 777`, `shred`, `/dev/sd*` |
-| `exec.download-run` | critical | high | skill, script, config | `curl \| sh`, `iwr \| iex`, `bash <(curl …)` |
-| `exec.dynamic` | medium | low | skill, script, config | `eval(`, `exec(`, `new Function`, `child_process`, `os.system`, `popen` |
-| `exf.outbound` | critical | medium | skill, script, config | a URL **and** a send verb/form in the same file (`curl -d/-F`, `requests.post`, `fetch(`, `scp`) |
-| `exf.webhook` | high | high | skill, script, config | known endpoints (Discord webhooks, webhook.site, requestbin, ngrok, interact.sh, OAST, Canarytokens…) |
+| `obf.unicode-tag` | high | high | all | U+E0000–E007F tag chars, or runs of 8+ variation selectors; snippet escaped |
+| `sec.env-read` | high/med | medium | all | `.env`, AWS/SSH/gcloud/kube/docker/netrc/npmrc/keychain/cookies/shell history, `/etc/shadow` and `/etc/passwd` → high; secret-looking env access → medium |
+| `sec.hardcoded-secret` | high | medium | skill, script, config, instructions, agentconfig | literal `sk-`, `ghp_`, `AKIA`, `AIza`, `xox*`, private-key material; placeholder-aware, redacted |
+| `exec.destructive` | high | medium | skill, script, config, instructions, agentconfig | `rm -rf`, `mkfs`, `dd`, fork bomb, `chmod -R 777`, `shred`, `/dev/sd*` |
+| `exec.download-run` | critical | high | skill, script, config, instructions, agentconfig | `curl \| sh`, `iwr \| iex`, `bash <(curl …)` |
+| `exec.dynamic` | medium | low | skill, script, config, instructions, agentconfig | `eval(`, `exec(`, `new Function`, `child_process`, `os.system`, `popen` |
+| `exec.reverse-shell` | critical | high | skill, script, config, instructions, agentconfig | `/dev/tcp`, `nc -e`, `socat … exec:`, `bash -i >&`, PowerShell TCP client |
+| `exec.security-disable` | high | medium | skill, script, config, instructions, agentconfig | quarantine removal, `spctl --master-disable`, Defender exclusions, firewall/SELinux disable |
+| `exf.outbound` | critical | medium | skill, script, config, instructions, agentconfig | a URL **and** a send verb/form in the same file (`curl -d/-F`, `requests.post`, `fetch(`, `scp`) |
+| `exf.webhook` | high | high | skill, script, config, instructions, agentconfig | known endpoints (Discord webhooks, webhook.site, requestbin, ngrok, paste sites, OAST, Canarytokens…) |
+| `exf.secret-to-network` | critical | high | skill, script, config, instructions | a credential path or env value **and** a network sink on the same line; bearer headers exempt |
+| `exf.base-url-hijack` | high | med/high | skill, script, config, mcp, instructions, agentconfig | `*_BASE_URL` assignment to a non-official host (high confidence for plaintext or IP literal) |
 | `hook.fetch-run` | high | medium | config (`package.json`) | install hooks (`preinstall/install/postinstall/prepare`) that fetch or exec code |
+| `agent.hook-exec` | high/crit | medium | agentconfig | `.claude/settings.json` hook commands; critical when the command downloads, shells out, or reaches secrets |
+| `agent.unsafe-setting` | high | medium | agentconfig | `bypassPermissions`, sandbox disable, wildcard allow-list, `apiKeyHelper`, auto-approved MCP servers |
 | `skill.permissions` | medium | low | skill | frontmatter `allowed-tools` containing broad tools (`bash`, `write`, `webfetch`, `*`…) |
 | `hygiene.unpinned` | low | medium | skill, script | `npx/uvx/bunx -y <pkg>` with no `@version` |
-| `hygiene.http` | low | low | skill, script, config | plaintext `http://` that is not localhost |
+| `hygiene.http` | low | low | skill, script, config, instructions, agentconfig | plaintext `http://` that is not localhost |
 | `mcp.invalid` | info | high | mcp | config failed to parse |
 | `mcp.imperative-desc` | high | medium | mcp | instruction language in server/tool descriptions |
+| `mcp.schema-injection` | high | medium | mcp | instruction language, hidden chars, or sensitive paths in tool `inputSchema` strings |
 | `mcp.shadow` | high | medium | mcp | server/tool name within one edit of a canonical tool (`readfile`, `bash`, …) |
 | `mcp.overreach` | medium | medium | mcp | secret-like `env` keys, or home/system paths in command/args |
 | `mcp.args-exec` | high | medium | mcp | `command`/`args` with `curl \| sh`, `bash -c`, `-enc`, `rm -rf`, `iex` |
@@ -67,9 +76,11 @@ testable.
 | `mcp.secrets` | high | medium | mcp | hardcoded credential-shaped value in `env`/`headers` (placeholder-aware, redacted) |
 | `mcp.hygiene` | low | medium | mcp | `npx/uvx/pnpm/bunx` server arg with no version pin |
 
-Notes: `config` currently means `package.json` only. Injection, obfuscation, and
-secret-access rules run on every recognized kind; execution, exfiltration, hooks,
-permissions, and hygiene are kind-scoped; all `mcp.*` are `mcp`-only.
+Notes: `config` currently means `package.json` only; `agentconfig` is
+`.claude/settings.json`, `.claude/settings.local.json`, and
+`.claude/hooks/hooks.json`. Injection, obfuscation, and secret-access rules run
+on every recognized kind; execution, exfiltration, hooks, permissions, and
+hygiene are kind-scoped; all `mcp.*` are `mcp`-only.
 
 ## How content reaches rules
 
@@ -77,7 +88,11 @@ permissions, and hygiene are kind-scoped; all `mcp.*` are `mcp`-only.
 
 - `SKILL.md` → `skill`
 - known MCP config filenames → `mcp`
+- `.claude/settings.json`, `.claude/settings.local.json`, `.claude/hooks/hooks.json` → `agentconfig`
 - `package.json` → `config`
+- `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`,
+  `.clinerules`, `.cursor/rules/*.mdc`, `.github/copilot-instructions.md` →
+  `instructions`
 - script extensions inside a skill directory → `script`
 - everything else is dropped
 
@@ -132,6 +147,5 @@ Per the [`rule-backlog.md`](./rule-backlog.md) promotion checklist:
   duplicated (**E1**).
 - Rule tables in README/site are hand-copied from `rules` output and can drift;
   no machine-readable registry feeds them (**E4**).
-- Rules are per-entry only; no cross-file `corr.*` pass (**E2**), no
-  instruction-file discovery (`AGENTS.md`, `CLAUDE.md`) (**E7**), no FP corpus
-  harness (**E5**).
+- Rules are per-entry only; no cross-file `corr.*` pass (**E2**), and no FP
+  corpus harness (**E5**).

@@ -1,4 +1,11 @@
-import { destructiveRule, downloadRunRule, dynamicExecRule } from "./execution.js";
+import { agentRules } from "./agent.js";
+import {
+  destructiveRule,
+  downloadRunRule,
+  dynamicExecRule,
+  reverseShellRule,
+  securityDisableRule,
+} from "./execution.js";
 import { exfiltrationRules } from "./exfiltration.js";
 import { hookRule } from "./hooks.js";
 import { hygieneRules } from "./hygiene.js";
@@ -6,7 +13,7 @@ import { injectionRules } from "./injection.js";
 import { mcpRules } from "./mcp.js";
 import { obfuscationRules } from "./obfuscation.js";
 import { skillPermissionsRule } from "./permissions.js";
-import { secretAccessRule } from "./secretAccess.js";
+import { hardcodedSecretRule, secretAccessRule } from "./secretAccess.js";
 import type { FileEntry, Finding, Rule } from "./types.js";
 
 /** Every rule the scanner knows about, in reporting order. */
@@ -14,16 +21,18 @@ export const ALL_RULES: Rule[] = [
   ...injectionRules,
   ...obfuscationRules,
   secretAccessRule,
+  hardcodedSecretRule,
   ...executionRules(),
   ...exfiltrationRules,
   hookRule,
+  ...agentRules,
   skillPermissionsRule,
   ...hygieneRules,
   ...mcpRules,
 ];
 
 function executionRules(): Rule[] {
-  return [destructiveRule, downloadRunRule, dynamicExecRule];
+  return [destructiveRule, downloadRunRule, dynamicExecRule, reverseShellRule, securityDisableRule];
 }
 
 export const ALL_RULE_IDS: string[] = ALL_RULES.map((rule) => rule.id);

@@ -8,7 +8,14 @@ export type Severity = "critical" | "high" | "medium" | "low" | "info";
 
 export type Confidence = "high" | "medium" | "low";
 
-export type FileKind = "skill" | "mcp" | "script" | "config" | "other";
+export type FileKind =
+  | "skill"
+  | "mcp"
+  | "script"
+  | "config"
+  | "agentconfig"
+  | "instructions"
+  | "other";
 
 /** Parsed frontmatter of a SKILL.md. */
 export interface SkillMeta {

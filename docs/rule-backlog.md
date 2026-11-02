@@ -6,7 +6,7 @@ This is where rule ideas are **collected, triaged, and tracked** before they
 become code. It exists so the scanner's detection surface can grow with the
 attack surface instead of being reinvented each time someone spots a new trick.
 
-- Current shipping ruleset: **24 rules** — list them with `skillcanary rules`.
+- Current shipping ruleset: **33 rules** — list them with `skillcanary rules`.
 - This backlog is **not** the rule catalogue; it is the queue feeding it.
 - Nothing here is a commitment. An entry is a hypothesis until it passes the
   promotion checklist at the bottom.
@@ -97,7 +97,6 @@ on clean skills destroys trust faster than a missed trick helps.
 
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
-| `obf.unicode-tag` | high | U+E0000–E007F tag characters; long variation-selector runs | codepoint scan | low |
 | `obf.ansi-escape` | high | raw ESC/CSI/OSC sequences in skill text (terminal spoofing) | control-char scan | low |
 | `obf.control-chars` | medium | C0/C1 controls other than `\n`, `\r`, `\t` | codepoint scan | low |
 | `obf.entity-encoded` | medium | `&#105;gnore` / `&Tab;` decoding to keywords | decode entities → keyword scan | low |
@@ -117,7 +116,6 @@ on clean skills destroys trust faster than a missed trick helps.
 | `sec.wallet-access` | high | MetaMask/keystore/`wallet.dat`/seed-phrase paths | regex | low |
 | `sec.credential-store` | high | kubeconfig, `.git-credentials`, `.docker/config.json`, `.gnupg`, `.pgpass`, `.terraform`, shell history | path regex (extends today's list) | low |
 | `sec.clipboard-keychain` | medium | `xclip`, `pbpaste`, `Get-Clipboard`, `security find-generic-password`, `login.keychain-db` | regex | med |
-| `sec.hardcoded-secret` | high | literal `sk-…`, `ghp_…`, `AKIA…` in a skill/script | port the `mcp.secrets` detector to skill/script kinds | med |
 | `sec.private-key-material` | high | `-----BEGIN … PRIVATE KEY-----` blocks | regex | low |
 
 ### Exfiltration
@@ -125,7 +123,6 @@ on clean skills destroys trust faster than a missed trick helps.
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
 | `exf.dns` | high | `dig`/`nslookup`/`host` with base64-looking labels | regex + label entropy | med |
-| `exf.paste-service` | high | pastebin.com, transfer.sh, 0x0.st, file.io, dpaste, Gist API | endpoint allowlist | low |
 | `exf.cloud-upload` | high | `aws s3 cp`, `gsutil cp`, `az storage`, `rclone copy` of local files | regex | med |
 | `exf.mail-send` | medium | `sendmail`, `mail -s`, SMTP libs sending file/secret content | regex | med |
 | `exf.beacon-image` | medium | `![](http://…?data…)` or `<img src>` with payload in query | markdown/HTML image scan | med |
@@ -137,11 +134,9 @@ on clean skills destroys trust faster than a missed trick helps.
 
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
-| `exec.reverse-shell` | critical | `/dev/tcp/`, `nc -e`, `ncat -e`, `socat … exec`, `bash -i >&` | regex | low |
 | `exec.privesc` | high | `sudo`, `doas`, `pkexec`, `chmod u+s`, `setcap`, `runas` | regex | med |
 | `exec.persistence` | high | `crontab -`, `~/.bashrc`/`.zshrc` append, LaunchAgents, systemd unit, registry `Run`, Startup folder | regex + path | med |
 | `exec.miner` | high | `xmrig`, `stratum+tcp://`, Monero pools, `--donate-level` | regex | low |
-| `exec.security-disable` | high | `setenforce 0`, `ufw disable`, `iptables -F`, `Set-MpPreference -Disable`, `spctl --master-disable` | regex | low |
 | `exec.encoded-shell` | critical | `powershell -enc`, `pwsh -EncodedCommand`, `base64 -d \| sh` | regex | low |
 | `exec.temp-exec` | high | write to `/tmp`/`$TMPDIR` → `chmod +x` → run | multi-line pipeline | med |
 | `exec.git-hook-write` | high | writes `.git/hooks/*` or sets `core.hooksPath` | path/arg regex | med |
@@ -187,7 +182,6 @@ on clean skills destroys trust faster than a missed trick helps.
 
 | ID | Sev | Detects (trigger) | Needs | FP |
 |---|---|---|---|---|
-| `mcp.schema-injection` | high | instructions hidden in tool input-schema `description`/`default`/`enum` | capture the full `inputSchema` in `remote.ts`/`parse.ts` | med |
 | `mcp.instructions-field` | high | MCP `initialize.instructions` contains imperative text | capture `instructions` from the initialize result | med |
 | `mcp.dynamic-tools` | high | `tools/list` differs between two calls (change/rug-pull signal) | a second `tools/list` call + compare | med |
 | `mcp.oauth-scope-broad` | medium | broad/`*` OAuth scopes requested in a config | parse the auth/headers block | med |

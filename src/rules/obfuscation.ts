@@ -1,5 +1,9 @@
-import { escapeFormatChars, hasFormatChars, toSafeSnippet } from "../util/text.js";
+import { escapeFormatChars, escapeTagChars, hasFormatChars, toSafeSnippet } from "../util/text.js";
 import type { FileEntry, Finding, Rule } from "./types.js";
+
+const TAG_CHAR_RE = /[\u{E0000}-\u{E007F}]/u;
+// biome-ignore lint/suspicious/noMisleadingCharacterClass: variation selectors are intentionally matched as standalone code points
+const VARIATION_SELECTOR_RUN_RE = /(?:\uFE00-\uFE0F|[\u{E0100}-\u{E01EF}]){8,}/u;
 
 const zeroWidthRule: Rule = {
   id: "obf.zero-width",
@@ -123,4 +127,41 @@ const homoglyphRule: Rule = {
   },
 };
 
-export const obfuscationRules: Rule[] = [zeroWidthRule, encodedBlobRule, homoglyphRule];
+export const unicodeTagRule: Rule = {
+  id: "obf.unicode-tag",
+  severity: "high",
+  confidence: "high",
+  description: "Unicode tag characters or long variation-selector runs hide text.",
+  check(entry: FileEntry): Finding[] {
+    const findings: Finding[] = [];
+    entry.lines.forEach((line, index) => {
+      const tag = TAG_CHAR_RE.test(line);
+      const selectors = VARIATION_SELECTOR_RUN_RE.test(line);
+      if (!tag && !selectors) {
+        return;
+      }
+      findings.push({
+        ruleId: "obf.unicode-tag",
+        severity: "high",
+        confidence: "high",
+        message: tag
+          ? "Unicode tag characters can hide an invisible ASCII payload."
+          : "A long variation-selector run can hide data.",
+        file: entry.path,
+        line: index + 1,
+        snippet: toSafeSnippet(
+          escapeTagChars(line).replace(VARIATION_SELECTOR_RUN_RE, "[variation-selectors]"),
+        ),
+        remediation: "Strip invisible formatting characters and review the original text.",
+      });
+    });
+    return findings;
+  },
+};
+
+export const obfuscationRules: Rule[] = [
+  zeroWidthRule,
+  unicodeTagRule,
+  encodedBlobRule,
+  homoglyphRule,
+];

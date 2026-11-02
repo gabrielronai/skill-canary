@@ -5,6 +5,8 @@ export type McpTransport = "stdio" | "http" | "sse" | "unknown";
 export interface McpTool {
   name: string;
   description?: string;
+  /** Strings collected from the tool's input schema (descriptions, defaults, enums). */
+  schemaText?: string[];
 }
 
 export interface McpServer {

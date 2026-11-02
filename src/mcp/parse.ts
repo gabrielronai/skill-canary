@@ -47,6 +47,37 @@ function toTransport(entry: Record<string, unknown>): McpTransport {
   return "unknown";
 }
 
+export function collectSchemaText(value: unknown, depth = 0): string[] {
+  if (depth > 6 || value === null) {
+    return [];
+  }
+  if (typeof value === "string") {
+    return [value];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectSchemaText(item, depth + 1));
+  }
+  if (typeof value !== "object") {
+    return [];
+  }
+  const out: string[] = [];
+  for (const [key, item] of Object.entries(value)) {
+    if (
+      key === "description" ||
+      key === "title" ||
+      key === "default" ||
+      key === "enum" ||
+      key === "const" ||
+      key === "examples"
+    ) {
+      out.push(...collectSchemaText(item, depth + 1));
+    } else if (typeof item === "object") {
+      out.push(...collectSchemaText(item, depth + 1));
+    }
+  }
+  return out;
+}
+
 function toTools(value: unknown): McpTool[] {
   if (!Array.isArray(value)) {
     return [];
@@ -59,7 +90,12 @@ function toTools(value: unknown): McpTool[] {
     }
     const name = typeof record.name === "string" ? record.name : "";
     const description = typeof record.description === "string" ? record.description : undefined;
-    tools.push(description === undefined ? { name } : { name, description });
+    const schemaText = collectSchemaText(record.inputSchema);
+    const tool: McpTool = schemaText.length > 0 ? { name, schemaText } : { name };
+    if (description !== undefined) {
+      tool.description = description;
+    }
+    tools.push(tool);
   }
   return tools;
 }

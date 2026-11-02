@@ -41,6 +41,15 @@ They are listed in `.scannerignore` so they do **not** fail the repo's own
 | 12 | `excessive-permissions` | Over-broad `allowed-tools` | `skill.permissions` | detected |
 | 13 | `mcp-tool-description-injection` | Instructions in an MCP tool description | `mcp.imperative-desc` | detected |
 | 14 | `hidden-html-comment` | Instructions hidden in an HTML comment | `inj.hidden-instruction` | detected |
+| 15 | `pipe-credentials-to-network` | Read an SSH key and POST it | `exf.secret-to-network` | detected |
+| 16 | `hijack-model-endpoint` | Redirect the model API to an attacker host | `exf.base-url-hijack` | detected |
+| 17 | `hidden-unicode-tag` | Invisible tag characters hide instructions | `obf.unicode-tag` | detected |
+| 18 | `reverse-shell` | Open a shell back to the attacker | `exec.reverse-shell` | detected |
+| 19 | `disable-security-controls` | Remove quarantine and Defender checks | `exec.security-disable` | detected |
+| 20 | `hardcoded-api-key` | Commit a live-looking API key | `sec.hardcoded-secret` | detected |
+| 21 | `agent-startup-hook` | Auto-run a hook from repo settings | `agent.hook-exec`, `agent.unsafe-setting` | detected |
+| 22 | `instruction-file-injection` | Inject instructions in `AGENTS.md` | `inj.ignore-previous` | detected |
+| 23 | `mcp-tool-schema-injection` | Hide instructions in an input schema | `mcp.schema-injection` | detected |
 
 All fixtures are now detected by an implemented rule; the `safe-*` fixtures guard
 against false positives.
@@ -66,6 +75,9 @@ directory dynamically and asserts each produces no findings.
 | `safe-changelog-writer` | Draft a changelog | none |
 | `safe-log-level-helper` | Explain a log-level setting | mentions `process.env.LOG_LEVEL` — a boundary check that `sec.env-read` does not fire on a non-secret env var |
 | `safe-word-counter` | Count words | none |
+| `safe-agent-settings` | Legitimate project settings | scoped `permissions.allow`, no hooks |
+| `safe-agent-instructions` | Legitimate `AGENTS.md` | plain style guidance, no imperative override |
+| `safe-model-endpoint` | Official model endpoint override | `ANTHROPIC_BASE_URL=https://api.anthropic.com` |
 
 When you add a rule, confirm both directions: the intended malicious fixtures
 fire and the `safe-*` fixtures stay quiet.
@@ -85,6 +97,7 @@ fixtures are unprefixed directories containing `mcp.json`:
 | `mcp-remote-http` | Plaintext HTTP remote URL | `mcp.transport` |
 | `mcp-unpinned-npx` | Unpinned `npx -y` | `mcp.hygiene` |
 | `mcp-path-overreach` | System paths in args | `mcp.overreach` |
+| `mcp-tool-schema-injection` | Instructions in a tool `inputSchema` | `mcp.schema-injection` |
 
 Safe MCP fixtures (must report zero findings): `safe-mcp-https-pinned`,
 `safe-mcp-stdio-local`, `safe-mcp-remote-https`.
@@ -189,7 +202,7 @@ Safe MCP fixtures (must report zero findings): `safe-mcp-https-pinned`,
 
 ```
 $ node dist/bin.js scan test-skills --no-color
-26 finding(s): 4 critical, 16 high, 4 medium, 2 low
+43 finding(s): 9 critical, 28 high, 4 medium, 2 low
 exit=1
 ```
 

@@ -21,6 +21,34 @@ export interface ScanOptions {
   rules?: string[];
 }
 
+function isAgentConfigFile(relativePath: string): boolean {
+  const lower = relativePath.toLowerCase();
+  return (
+    /(?:^|\/)\.claude\/settings(?:\.local)?\.json$/.test(lower) ||
+    /(?:^|\/)\.claude\/hooks\/hooks\.json$/.test(lower)
+  );
+}
+
+const INSTRUCTION_FILENAMES = new Set([
+  "claude.md",
+  "agents.md",
+  "gemini.md",
+  ".cursorrules",
+  ".windsurfrules",
+  ".clinerules",
+]);
+
+function isInstructionsFile(relativePath: string): boolean {
+  const lower = relativePath.toLowerCase();
+  if (INSTRUCTION_FILENAMES.has(basename(lower))) {
+    return true;
+  }
+  if (/(?:^|\/)\.cursor\/rules\/.*\.mdc$/.test(lower)) {
+    return true;
+  }
+  return /(?:^|\/)\.github\/copilot-instructions\.md$/.test(lower);
+}
+
 function classify(relativePath: string, dirs: Set<string>): FileKind {
   if (isSkillFile(relativePath)) {
     return "skill";
@@ -28,8 +56,14 @@ function classify(relativePath: string, dirs: Set<string>): FileKind {
   if (isMcpFile(relativePath)) {
     return "mcp";
   }
+  if (isAgentConfigFile(relativePath)) {
+    return "agentconfig";
+  }
   if (basename(relativePath).toLowerCase() === "package.json") {
     return "config";
+  }
+  if (isInstructionsFile(relativePath)) {
+    return "instructions";
   }
   if (isScriptFile(relativePath) && isInsideSkillDir(relativePath, dirs)) {
     return "script";
