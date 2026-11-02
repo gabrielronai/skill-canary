@@ -9,6 +9,29 @@ explicitly, since they can change whether a build passes.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-02
+
+### Added
+
+- **Inline suppression:** `# skillcanary:ignore <rule-id>[, <rule-id>]` silences
+  findings on the directive line and the following line. A directive without
+  IDs silences every rule on those lines. Works in any scanned file using `#`,
+  `//`, `<!--`, `/*`, or `--` comments.
+- **Baselines:** `--write-baseline <file>` records current findings and exits
+  `0`; `--baseline <file>` suppresses recorded findings on later runs. The
+  baseline is JSON keyed by `ruleId|file|line`, so reworded messages do not
+  invalidate it.
+- **Confidence gate:** `--min-confidence low|medium|high` drops findings below
+  the chosen confidence (default `low`, which keeps everything).
+
+### Changed
+
+- `runRules` now applies inline suppressions per entry before deduplication.
+
+### Tests
+
+- **106 tests**, self-scan clean.
+
 ## [0.2.0] - 2026-11-02
 
 ### Added
@@ -72,6 +95,7 @@ Initial pre-release. Not yet published to npm.
 - Usage/command/CI/npm docs, the MCP-server guide, the fixture reference, the
   rule reference, and the rule backlog + harvest process.
 
-[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.3.0
 [0.2.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.2.0
 [0.1.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0

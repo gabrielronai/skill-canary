@@ -116,8 +116,14 @@ config file** (the `scanner.config.json` in the original plan was never built).
   `--mcp-header`, `--allow-insecure`, `--package`, `--scan-packages`,
   `--package-max-mb`. `--scan-packages` derives specs from MCP server commands.
 - `.scannerignore` at the scan root: one path prefix per line, `#` comments.
-  Matching is prefix-based (`rel === entry || rel.startsWith(entry + "/")`). This
-  is the only suppression mechanism today.
+  Matching is prefix-based (`rel === entry || rel.startsWith(entry + "/")`).
+- Inline suppression: `# skillcanary:ignore <rule-id>[, ...]` on a finding's line
+  or the line above. No IDs means every rule on those two lines. Recognized
+  comment styles: `#`, `//`, `<!-- -->`, `/* */`, `--`.
+- Baseline: `--write-baseline <file>` records findings (`ruleId|file|line`) and
+  exits `0`; `--baseline <file>` suppresses them on later runs.
+- Confidence gate: `--min-confidence low|medium|high` drops findings below the
+  chosen confidence (`meetsConfidence`).
 - Built-in walk limits (`src/inputs/walk.ts`): skips `.git`, `node_modules`,
   `dist`, `build`, `out`, `coverage`, `vendor`, virtualenvs, caches; skips binary
   extensions; skips files > 1 MB; drops content containing NUL.
@@ -140,10 +146,7 @@ Per the [`rule-backlog.md`](./rule-backlog.md) promotion checklist:
 
 ## Known gaps (backlog, not implemented)
 
-- No inline `# skillcanary:ignore` comments, no baseline file, no
-  confidence-gated CI (backlog item **E3**, flagged as a prerequisite before
-  shipping any high-FP rule).
-- No shared pattern module — `IMPERATIVE_PATTERNS`, `DOWNLOAD_RUN_PATTERNS` are
+- No shared pattern module - `IMPERATIVE_PATTERNS`, `DOWNLOAD_RUN_PATTERNS` are
   duplicated (**E1**).
 - Rule tables in README/site are hand-copied from `rules` output and can drift;
   no machine-readable registry feeds them (**E4**).

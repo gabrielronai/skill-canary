@@ -3,9 +3,10 @@
 How to build, run, and test `SkillCanary` — including pointing it at **real
 skills** already installed on your machine.
 
-Status: **v0.2.0 pre-release** (not yet on npm). 33 rules, text/JSON/SARIF
-output, remote MCP and package scanning. See [`../CHANGELOG.md`](../CHANGELOG.md)
-and the rule reference in [`scanning-rules.md`](./scanning-rules.md).
+Status: **v0.3.0 pre-release** (not yet on npm). 33 rules, text/JSON/SARIF
+output, remote MCP and package scanning, inline suppressions and baselines. See
+[`../CHANGELOG.md`](../CHANGELOG.md) and the rule reference in
+[`scanning-rules.md`](./scanning-rules.md).
 
 Per-shell copy-paste commands (cmd.exe, PowerShell, Linux, macOS):
 [`commands.md`](./commands.md).
@@ -206,6 +207,9 @@ none` to report without failing.
 node dist/bin.js scan . --fail-on high      # CI default
 node dist/bin.js scan . --format text       # text (default), json, or sarif
 node dist/bin.js scan . --rules sec.env-read,inj.ignore-previous
+node dist/bin.js scan . --min-confidence high    # drop low/medium-confidence findings
+node dist/bin.js scan . --baseline skillcanary-baseline.json
+node dist/bin.js scan . --write-baseline skillcanary-baseline.json
 node dist/bin.js scan . --quiet             # exit code only
 node dist/bin.js scan . --no-color
 node dist/bin.js rules                      # list rules
@@ -242,6 +246,33 @@ vendor
 test/fixtures
 third_party/skills
 ```
+
+## Suppressing findings
+
+Three escape hatches, narrowest to broadest:
+
+**Inline** — put a comment on the finding's line or the line above:
+
+```bash
+# skillcanary:ignore exec.download-run
+```
+
+`#`, `//`, `<!-- -->`, `/* */`, and `--` comment styles are recognized. Multiple
+IDs are comma-separated; omit IDs to suppress every rule on those two lines.
+
+**Baseline** — accept current findings and fail only on new ones:
+
+```bash
+node dist/bin.js scan . --write-baseline skillcanary-baseline.json
+node dist/bin.js scan . --baseline skillcanary-baseline.json --fail-on high
+```
+
+The baseline is JSON keyed by `ruleId|file|line`, so reworded messages do not
+invalidate it. Commit it so CI stays green while existing findings are fixed.
+`--write-baseline` writes the file and exits `0` without applying it.
+
+**Confidence** — `--min-confidence medium` drops low-confidence heuristics;
+`high` keeps only high-confidence findings. Useful in CI while tuning.
 
 ## Rules
 

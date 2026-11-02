@@ -69,6 +69,12 @@ export const SEVERITY_ORDER: Record<Severity, number> = {
   critical: 4,
 };
 
+export const CONFIDENCE_ORDER: Record<Confidence, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+};
+
 export type FailThreshold = Severity | "none";
 
 /** True when `severity` should fail the run for the given threshold. */
@@ -77,4 +83,9 @@ export function meetsThreshold(severity: Severity, threshold: FailThreshold): bo
     return false;
   }
   return SEVERITY_ORDER[severity] >= SEVERITY_ORDER[threshold];
+}
+
+/** True when `confidence` is at or above the minimum. */
+export function meetsConfidence(confidence: Confidence, minimum: Confidence): boolean {
+  return CONFIDENCE_ORDER[confidence] >= CONFIDENCE_ORDER[minimum];
 }

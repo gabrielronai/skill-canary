@@ -10,13 +10,14 @@ never executes the content it scans.
 
 ## Status
 
-**v0.2.0 — pre-release, not yet on npm.** Working: 33 rules across injection,
+**v0.3.0 - pre-release, not yet on npm.** Working: 33 rules across injection,
 obfuscation, secrets, execution, exfiltration, install hooks, agent config,
 skills and instruction files, skill hygiene, and MCP (structural + live remote);
 discovery of skills, MCP configs, scripts, `package.json` hooks, `.claude`
-settings, and agent instruction files; text/JSON/SARIF output; remote MCP and
-npm/local package scanning; a composite GitHub Action; and an MCP server wrapper.
-98 tests, self-scan clean. Not yet: npm publish.
+settings, and agent instruction files; text/JSON/SARIF output; inline
+`# skillcanary:ignore` suppressions, baseline files, and `--min-confidence`;
+remote MCP and npm/local package scanning; a composite GitHub Action; and an MCP
+server wrapper. 106 tests, self-scan clean. Not yet: npm publish.
 
 ## Requirements
 

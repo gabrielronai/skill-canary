@@ -247,13 +247,11 @@ These make rule growth cheap and safe. Tracked here; built separately.
 |---|---|---|
 | **E1** | Shared `src/rules/patterns.ts` | Pattern lists are duplicated (`IMPERATIVE_PATTERNS`, `DOWNLOAD_RUN_PATTERNS`); one source prevents drift as the catalogue grows. |
 | **E2** | Optional global pass `checkAll(entries)` | The per-entry `Rule.check` cannot express `corr.*` rules. Additive interface change. |
-| **E3** | Suppression: inline `# skillcanary:ignore <rule-id>` + baseline file + confidence-gated CI | **Ship before any high-FP rule.** Without it, every new detection is a breaking change for CI users. |
 | **E4** | Machine-readable rule registry → generated `rules` output, README table, site table, SARIF metadata | The site/README tables are hand-copied from `rules` output today and will silently drift. |
 | **E5** | FP corpus harness | Scan a pinned set of real public skills/MCP configs (never executed), snapshot findings, fail on new ones. Catches false positives **and** mints new candidates. |
 | **E6** | This doc + the harvest cadence below | The collection process itself. |
-| **E7** | Instruction-file discovery (new `instructions` kind) | Unlocks the Tier C input surface and reuses `inj.*`/`obf.*` for free. |
 
-Recommended order: **E3 → E4 → E1 → E5 → E7 → E2**.
+Recommended order: **E4 → E1 → E5 → E2**.
 
 ---
 
@@ -319,9 +317,9 @@ A candidate only ships when all of these are true:
 - Prefer false negatives over alert fatigue — the existing tuning principle.
 - New rules default to `medium`/`low` confidence until the FP corpus and field
   reports justify more.
-- Users need an escape hatch: **E3 is a prerequisite** before shipping rules with
-  `high` FP risk. Until then, new rules must be conservative enough to keep
-  `safe-*` fixtures and the self-scan clean.
+- Users have an escape hatch: inline `# skillcanary:ignore`, `--baseline`, and
+  `--min-confidence` (E3). High-FP rules can ship, but still need a `safe-*`
+  fixture and a clean self-scan.
 
 ### Versioning
 

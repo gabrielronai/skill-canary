@@ -55,6 +55,14 @@ Output: `sarif-file` (path to the report).
 npx skillcanary scan . --format sarif --fail-on high > skillcanary.sarif
 ```
 
+Tolerate known findings while they are being fixed, or drop low-confidence
+heuristics:
+
+```bash
+npx skillcanary scan . --baseline skillcanary-baseline.json --fail-on high
+npx skillcanary scan . --min-confidence medium --fail-on high
+```
+
 Exit codes: `0` clean/below threshold, `1` findings at/above `--fail-on`,
 `2` usage or IO error.
 

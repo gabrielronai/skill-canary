@@ -1,4 +1,5 @@
 import { existsSync, statSync } from "node:fs";
+import { fingerprint, loadBaseline, writeBaseline } from "./baseline.js";
 import type { McpServer } from "./mcp/model.js";
 import { fetchRemoteServer } from "./mcp/remote.js";
 import { scanPackage } from "./packages/scan.js";
@@ -7,8 +8,8 @@ import { formatJson } from "./report/json.js";
 import { formatSarif } from "./report/sarif.js";
 import { formatText } from "./report/text.js";
 import { ALL_RULES, ALL_RULE_IDS } from "./rules/registry.js";
-import type { FailThreshold, Finding } from "./rules/types.js";
-import { meetsThreshold } from "./rules/types.js";
+import type { Confidence, FailThreshold, Finding } from "./rules/types.js";
+import { meetsConfidence, meetsThreshold } from "./rules/types.js";
 import {
   collectMcpServers,
   collectMcpServersFromFile,
@@ -31,6 +32,7 @@ const DEFAULT_IO: IO = {
 };
 
 const SEVERITIES: FailThreshold[] = ["none", "critical", "high", "medium", "low", "info"];
+const CONFIDENCES: Confidence[] = ["low", "medium", "high"];
 const FORMATS = new Set(["text", "json", "sarif"]);
 
 const HELP = `skillcanary — security scanner for MCP servers and SKILL.md skills
@@ -54,6 +56,9 @@ Options:
   --fail-on <level>            Exit 1 at or above: none|critical|high|medium|low|info
                                (default: high)
   --rules <id,id>              Only run these rules
+  --min-confidence <level>     Drop findings below: low|medium|high (default: low)
+  --baseline <file>            Suppress findings recorded in a baseline file
+  --write-baseline <file>      Write current findings to a baseline, then exit 0
   --no-color                   Disable colored output
   --quiet                      Suppress the report (exit code only)
   -h, --help                   Show help
@@ -67,6 +72,9 @@ interface ScanArgs {
   color: boolean;
   quiet: boolean;
   rules?: string[];
+  minConfidence: Confidence;
+  baseline?: string;
+  writeBaseline?: string;
   mcpConfigs: string[];
   mcpUrls: string[];
   mcpHeaders: Record<string, string>;
@@ -92,6 +100,7 @@ function parseScanArgs(argv: string[], io: IO): ScanArgs | null {
     failOn: "high",
     color: Boolean(process.stdout.isTTY),
     quiet: false,
+    minConfidence: "low",
     mcpConfigs: [],
     mcpUrls: [],
     mcpHeaders: {},
@@ -124,6 +133,33 @@ function parseScanArgs(argv: string[], io: IO): ScanArgs | null {
           .split(",")
           .map((rule) => rule.trim())
           .filter(Boolean);
+        break;
+      }
+      case "--min-confidence": {
+        const value = argv[++index] ?? "";
+        if (!CONFIDENCES.includes(value as Confidence)) {
+          io.err(`Invalid --min-confidence value: ${value} (use low, medium, or high)\n`);
+          return null;
+        }
+        parsed.minConfidence = value as Confidence;
+        break;
+      }
+      case "--baseline": {
+        const value = argv[++index] ?? "";
+        if (!value) {
+          io.err("--baseline requires a file path\n");
+          return null;
+        }
+        parsed.baseline = value;
+        break;
+      }
+      case "--write-baseline": {
+        const value = argv[++index] ?? "";
+        if (!value) {
+          io.err("--write-baseline requires a file path\n");
+          return null;
+        }
+        parsed.writeBaseline = value;
         break;
       }
       case "--mcp-config": {
@@ -235,6 +271,18 @@ async function runScan(argv: string[], io: IO): Promise<number> {
     return 2;
   }
 
+  let baseline: Set<string> | undefined;
+  if (args.baseline) {
+    try {
+      baseline = loadBaseline(args.baseline);
+    } catch (error) {
+      io.err(
+        `Cannot read baseline ${args.baseline}: ${error instanceof Error ? error.message : error}\n`,
+      );
+      return 2;
+    }
+  }
+
   const findings: Finding[] = [];
   const pathIsDir = existsSync(args.path) && statSync(args.path).isDirectory();
   if (pathIsDir) {
@@ -306,7 +354,27 @@ async function runScan(argv: string[], io: IO): Promise<number> {
     }
   }
 
-  const sorted = sortFindings(findings);
+  if (args.writeBaseline) {
+    try {
+      const count = writeBaseline(args.writeBaseline, findings);
+      if (!args.quiet) {
+        io.out(`Wrote ${count} finding(s) to ${args.writeBaseline}\n`);
+      }
+      return 0;
+    } catch (error) {
+      io.err(
+        `Cannot write baseline ${args.writeBaseline}: ${error instanceof Error ? error.message : error}\n`,
+      );
+      return 2;
+    }
+  }
+
+  const visible = findings.filter(
+    (finding) =>
+      meetsConfidence(finding.confidence, args.minConfidence) &&
+      (baseline === undefined || !baseline.has(fingerprint(finding))),
+  );
+  const sorted = sortFindings(visible);
   if (!args.quiet) {
     if (args.format === "json") {
       io.out(formatJson(sorted));

@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { IO } from "../src/cli.js";
 import { main } from "../src/cli.js";
@@ -81,5 +84,33 @@ describe("cli", () => {
   it("returns 2 for a missing directory", async () => {
     const { io } = capture();
     expect(await main(["scan", "does/not/exist"], io)).toBe(2);
+  });
+
+  it("drops low-confidence findings with --min-confidence", async () => {
+    const { io } = capture();
+    const args = (extra: string[]) => [
+      "scan",
+      "test-skills/excessive-permissions",
+      "--rules",
+      "skill.permissions",
+      "--fail-on",
+      "medium",
+      ...extra,
+    ];
+    expect(await main(args([]), io)).toBe(1);
+    expect(await main(args(["--min-confidence", "high"]), io)).toBe(0);
+  });
+
+  it("suppresses findings recorded in a baseline", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "skillcanary-"));
+    const baseline = join(dir, "baseline.json");
+    try {
+      const { io } = capture();
+      const scanArgs = ["scan", "test-skills/mcp-remote-http", "--fail-on", "medium"];
+      expect(await main([...scanArgs, "--write-baseline", baseline], io)).toBe(0);
+      expect(await main([...scanArgs, "--baseline", baseline], io)).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
