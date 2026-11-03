@@ -10,7 +10,7 @@ never executes the content it scans.
 
 ## Status
 
-**v0.4.0 - pre-release, not yet on npm.** Working: 33 rules across injection,
+**v0.1.0 - pre-release, not yet on npm.** Working: 33 rules across injection,
 obfuscation, secrets, execution, exfiltration, install hooks, agent config,
 skills and instruction files, skill hygiene, and MCP (structural + live remote);
 discovery of skills, MCP configs, scripts, `package.json` hooks, `.claude`
