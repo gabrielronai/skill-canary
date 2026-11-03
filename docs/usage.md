@@ -3,7 +3,7 @@
 How to build, run, and test `SkillCanary` — including pointing it at **real
 skills** already installed on your machine.
 
-Status: **v0.1.0 pre-release** (not yet on npm). 33 rules, text/JSON/SARIF
+Status: **v0.1.0** ([GitHub release](https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0); not yet on npm). 33 rules, text/JSON/SARIF
 output, remote MCP and package scanning, inline suppressions and baselines. See
 [`../CHANGELOG.md`](../CHANGELOG.md) and the rule reference in
 [`scanning-rules.md`](./scanning-rules.md).

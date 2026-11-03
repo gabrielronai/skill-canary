@@ -50,4 +50,5 @@ For a scoped name, `npx @scope/name scan .`.
 - Pre-1.0, bump the minor for new rules or behaviour changes and the patch for
   fixes (`0.1.0` → `0.1.1` → `0.2.0`).
 - Keep `src/version.ts` in sync with `package.json` `version`.
-- Tag releases in git (`v0.1.0`) once the repo has a remote.
+- Releases are tagged `v0.1.0` and published on GitHub; tag `vX.Y.Z` after each
+  version bump.
