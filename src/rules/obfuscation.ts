@@ -159,9 +159,101 @@ export const unicodeTagRule: Rule = {
   },
 };
 
+const ENTITY_RE = /(?:&#x[0-9a-fA-F]+;|&#\d+;){6,}/g;
+const PERCENT_RE = /(?:%[0-9a-fA-F]{2}){6,}/g;
+const HEX_ESCAPE_RE = /(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}){6,}/g;
+
+function decodeEntities(value: string): string {
+  return value
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex: string) =>
+      String.fromCodePoint(Number.parseInt(hex, 16)),
+    )
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)));
+}
+
+function decodePercent(value: string): string {
+  return value.replace(/%([0-9a-fA-F]{2})/g, (_, hex: string) =>
+    String.fromCharCode(Number.parseInt(hex, 16)),
+  );
+}
+
+function decodeHexEscapes(value: string): string {
+  return value
+    .replace(/\\x([0-9a-fA-F]{2})/g, (_, hex: string) =>
+      String.fromCharCode(Number.parseInt(hex, 16)),
+    )
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex: string) =>
+      String.fromCharCode(Number.parseInt(hex, 16)),
+    );
+}
+
+function decodedRunRule(
+  id: string,
+  description: string,
+  message: string,
+  source: RegExp,
+  decode: (value: string) => string,
+): Rule {
+  return {
+    id,
+    severity: "medium",
+    confidence: "low",
+    description,
+    check(entry: FileEntry): Finding[] {
+      const findings: Finding[] = [];
+      entry.lines.forEach((line, index) => {
+        for (const match of line.matchAll(source)) {
+          const decoded = decode(match[0]);
+          if (isPrintable(decoded) && SUSPICIOUS_DECODED_RE.test(decoded)) {
+            findings.push({
+              ruleId: id,
+              severity: "medium",
+              confidence: "low",
+              message,
+              file: entry.path,
+              line: index + 1,
+              snippet: toSafeSnippet(decoded),
+              remediation: "Decode and review the content; remove it if it is not legitimate data.",
+            });
+            return;
+          }
+        }
+      });
+      return findings;
+    },
+  };
+}
+
+const entityEncodedRule = decodedRunRule(
+  "obf.entity-encoded",
+  "HTML-entity-encoded text that decodes to suspicious instructions.",
+  "HTML entities decode to suspicious instructions.",
+  ENTITY_RE,
+  decodeEntities,
+);
+
+const percentEncodedRule = decodedRunRule(
+  "obf.percent-encoded",
+  "Percent-encoded text that decodes to suspicious instructions.",
+  "Percent-encoding decodes to suspicious instructions.",
+  PERCENT_RE,
+  decodePercent,
+);
+
+const hexEscapeRule = decodedRunRule(
+  "obf.hex-escape",
+  "Hex/unicode escape sequences that decode to suspicious instructions.",
+  "Escape sequences decode to suspicious instructions.",
+  HEX_ESCAPE_RE,
+  decodeHexEscapes,
+);
+
 export const obfuscationRules: Rule[] = [
   zeroWidthRule,
   unicodeTagRule,
   encodedBlobRule,
   homoglyphRule,
+  entityEncodedRule,
+  percentEncodedRule,
+  hexEscapeRule,
 ];

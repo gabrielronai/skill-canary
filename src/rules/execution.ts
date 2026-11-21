@@ -53,6 +53,33 @@ const SECURITY_DISABLE_PATTERNS: RegExp[] = [
   /\b(?:disable|bypass|turn\s+off)\b[^\n]{0,40}\b(?:antivirus|anti-virus|defender|smartscreen|firewall|gatekeeper|quarantine)\b/i,
 ];
 
+const SSH_BACKDOOR_PATTERNS: RegExp[] = [
+  /\bauthorized_keys\b[^\n]*(?:>>|>|\btee\b|Add-Content|Out-File)/i,
+  /(?:>>|\btee\b|Add-Content|Out-File)[^\n]*\bauthorized_keys\b/i,
+  /\b(?:appendFile|writeFile)(?:Sync)?\b[^\n]*authorized_keys/i,
+  /\bauthorized_keys\b[^\n]*\b(?:appendFile|writeFile)(?:Sync)?\b/i,
+  /\b(?:ssh|autossh)\b[^\n]*-N[^\n]*-R\b/i,
+  /\b(?:ssh|autossh)\b[^\n]*-R[^\n]*-N\b/i,
+  /\bautossh\b[^\n]*-R\b/i,
+  /StrictHostKeyChecking\s*=\s*no[^\n]*-R\b/i,
+  /-R\b[^\n]*StrictHostKeyChecking\s*=\s*no/i,
+  /\bssh\b[^\n]*-R\s+['"]?\*?:0:/i,
+];
+
+const PERSISTENCE_PATTERNS: RegExp[] = [
+  /@reboot\b/,
+  /\|\s*crontab\b/,
+  /\bcrontab\s+(?!-[lre]\b)(?:-|[^\s-])/i,
+  /(?:>>|\btee\b(?:\s+-a)?)[^\n]*\.(?:bashrc|zshrc|bash_profile|zprofile|profile)\b/i,
+  /Launch(?:Agents|Daemons)\/[^\n]*\.plist/i,
+  /\blaunchctl\s+(?:load|bootstrap|enable)\b/i,
+  /(?:\.config\/systemd\/user|\/etc\/systemd\/system|\/lib\/systemd\/system)\/[^\n]*\.service/i,
+  /\bschtasks\b[^\n]*\/create/i,
+  /Start\s+Menu[\\/]+Programs[\\/]+Startup/i,
+  /\breg\s+add\b[^\n]*\\(?:Run|RunOnce)\b/i,
+  /\b(?:Set|New)-ItemProperty\b[^\n]*\\(?:Run|RunOnce)\b/i,
+];
+
 function matchLines(
   entry: FileEntry,
   patterns: RegExp[],
@@ -167,5 +194,41 @@ export const securityDisableRule: Rule = {
       "medium",
       "Disables an operating-system security control.",
       "Do not weaken antivirus, firewall, quarantine, or sandbox protections.",
+    ),
+};
+
+export const sshBackdoorRule: Rule = {
+  id: "exec.ssh-backdoor",
+  severity: "critical",
+  confidence: "high",
+  description: "Installs an SSH key backdoor or a reverse SSH tunnel.",
+  kinds: KINDS,
+  check: (entry) =>
+    matchLines(
+      entry,
+      SSH_BACKDOOR_PATTERNS,
+      "exec.ssh-backdoor",
+      "critical",
+      "high",
+      "Writes an SSH authorized key or opens a reverse SSH tunnel.",
+      "Remove the key injection or tunnel; SSH access must be user-approved.",
+    ),
+};
+
+export const persistenceRule: Rule = {
+  id: "exec.persistence",
+  severity: "high",
+  confidence: "medium",
+  description: "Installs autostart persistence (cron, rc, launchd, systemd, task, registry).",
+  kinds: KINDS,
+  check: (entry) =>
+    matchLines(
+      entry,
+      PERSISTENCE_PATTERNS,
+      "exec.persistence",
+      "high",
+      "medium",
+      "Installs a mechanism that runs code automatically at login or boot.",
+      "Remove the autostart entry; persistence must be explicit and user-approved.",
     ),
 };

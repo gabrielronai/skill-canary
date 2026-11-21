@@ -9,6 +9,40 @@ explicitly, since they can change whether a build passes.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-21
+
+Ruleset change: **33 → 41 rules** (eight new detections). Pre-release; not yet
+published to npm.
+
+### Added
+
+- **`exec.ssh-backdoor`** (critical/high): writes to `authorized_keys` or opens a
+  reverse SSH tunnel (`ssh -N -R`, `autossh -R`, `StrictHostKeyChecking=no`).
+  Grounded in the October 2026 malicious Claude Code-branded Cursor extension,
+  which injected an Ed25519 key and a reverse tunnel for persistence.
+- **`exec.persistence`** (high/medium): login/boot autostart mechanisms —
+  `@reboot` cron, crontab install, shell-rc append, macOS LaunchAgents/Daemons,
+  systemd units, `schtasks /create`, Startup folder, and registry Run keys.
+- **`inj.self-persist`** (high/medium): instructions that try to survive across
+  sessions or spread into other files ("remember for all future conversations",
+  "update your CLAUDE.md/AGENTS.md", "add to your memory"). Grounded in Unit 42
+  MCP sampling conversation-hijacking and CSA agent-context-poisoning research.
+- **`inj.jailbreak-persona`** (high/medium): DAN / "unrestricted/developer/god
+  mode", role reassignment, and safety-filter bypass phrasing.
+- **`sec.env-dump`** (high/low): whole-environment dumps (`printenv`, piped
+  `env`/`set`, `Get-ChildItem Env:`, `/proc/self/environ`).
+- **`obf.entity-encoded`**, **`obf.percent-encoded`**, **`obf.hex-escape`**
+  (medium/low): runs of HTML numeric entities, `%hh`, or `\xhh`/`\uhhhh` escapes
+  that decode to suspicious instructions. Closes the encoded-evasion gap flagged
+  by OWASP EVA-13 metacharacter confusion.
+
+### Changed
+
+- Execution and exfiltration rules continue to apply to `instructions` and
+  `agentconfig` files; the new execution rules use the same kinds.
+- Rule registry (`docs/rules.json`), rule reference, usage guide, site, and
+  fixture docs updated for 41 rules; **131 tests**.
+
 ## [0.1.0] - 2026-11-03
 
 Initial pre-release. Not yet published to npm.
@@ -72,5 +106,6 @@ Initial pre-release. Not yet published to npm.
   rule reference, the generated rule registry, and the rule backlog + harvest
   process.
 
-[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/gabrielronai/skill-canary/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.2.0
 [0.1.0]: https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0

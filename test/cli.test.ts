@@ -85,7 +85,7 @@ describe("cli", () => {
     const { io, out } = capture();
     expect(await main(["rules", "--json"], io)).toBe(0);
     const rules = JSON.parse(out());
-    expect(rules).toHaveLength(33);
+    expect(rules).toHaveLength(41);
     expect(rules[0]).toMatchObject({ id: "inj.ignore-previous", severity: "high" });
   });
 

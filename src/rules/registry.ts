@@ -3,8 +3,10 @@ import {
   destructiveRule,
   downloadRunRule,
   dynamicExecRule,
+  persistenceRule,
   reverseShellRule,
   securityDisableRule,
+  sshBackdoorRule,
 } from "./execution.js";
 import { exfiltrationRules } from "./exfiltration.js";
 import { hookRule } from "./hooks.js";
@@ -13,7 +15,7 @@ import { injectionRules } from "./injection.js";
 import { mcpRules } from "./mcp.js";
 import { obfuscationRules } from "./obfuscation.js";
 import { skillPermissionsRule } from "./permissions.js";
-import { hardcodedSecretRule, secretAccessRule } from "./secretAccess.js";
+import { envDumpRule, hardcodedSecretRule, secretAccessRule } from "./secretAccess.js";
 import { applyInlineSuppressions } from "./suppress.js";
 import type { FileEntry, Finding, Rule } from "./types.js";
 
@@ -23,6 +25,7 @@ export const ALL_RULES: Rule[] = [
   ...obfuscationRules,
   secretAccessRule,
   hardcodedSecretRule,
+  envDumpRule,
   ...executionRules(),
   ...exfiltrationRules,
   hookRule,
@@ -33,7 +36,15 @@ export const ALL_RULES: Rule[] = [
 ];
 
 function executionRules(): Rule[] {
-  return [destructiveRule, downloadRunRule, dynamicExecRule, reverseShellRule, securityDisableRule];
+  return [
+    destructiveRule,
+    downloadRunRule,
+    dynamicExecRule,
+    reverseShellRule,
+    securityDisableRule,
+    sshBackdoorRule,
+    persistenceRule,
+  ];
 }
 
 export const ALL_RULE_IDS: string[] = ALL_RULES.map((rule) => rule.id);

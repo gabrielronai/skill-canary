@@ -6,7 +6,7 @@ This is where rule ideas are **collected, triaged, and tracked** before they
 become code. It exists so the scanner's detection surface can grow with the
 attack surface instead of being reinvented each time someone spots a new trick.
 
-- Current shipping ruleset: **33 rules** — list them with `skillcanary rules`.
+- Current shipping ruleset: **41 rules** — list them with `skillcanary rules`.
 - This backlog is **not** the rule catalogue; it is the queue feeding it.
 - Nothing here is a commitment. An entry is a hypothesis until it passes the
   promotion checklist at the bottom.
@@ -85,7 +85,6 @@ on clean skills destroys trust faster than a missed trick helps.
 
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
-| `inj.decoy-persona` | high | "you are now", "act as", "pretend to be", "developer mode", "DAN", "jailbreak" | regex on persona/override phrasing | med |
 | `inj.chat-template-spoof` | high | `[INST]`, `### System`, `<\|system\|>`, `<\|im_start\|>`, line-leading `system:` | regex | low |
 | `inj.delayed-trigger` | medium | "when the user asks about X", "on the next run", "after N messages", "if the date is…" | regex: event/time conditional near an action verb | med |
 | `inj.hidden-markup` | high | `[//]: # (…)`, `display:none`, white-on-white, `font-size:0`, `visibility:hidden`, collapsed `<details>` | regex over markdown/HTML | med |
@@ -99,9 +98,6 @@ on clean skills destroys trust faster than a missed trick helps.
 |---|---|---|---|---|
 | `obf.ansi-escape` | high | raw ESC/CSI/OSC sequences in skill text (terminal spoofing) | control-char scan | low |
 | `obf.control-chars` | medium | C0/C1 controls other than `\n`, `\r`, `\t` | codepoint scan | low |
-| `obf.entity-encoded` | medium | `&#105;gnore` / `&Tab;` decoding to keywords | decode entities → keyword scan | low |
-| `obf.percent-encoded` | medium | `%69%67%6e%6f%72%65` decoding to keywords | percent-decode → keyword scan | low |
-| `obf.hex-escape` | medium | `\x69\x67\x6e\x6f\x72\x65` decoding to keywords | unescape → keyword scan | low |
 | `obf.whitespace-stego` | low | long trailing space/tab runs encoding bits | run-length analysis | med |
 | `obf.nested-blob` | medium | decoded blob instructs decoding another blob | iterative decode with depth cap | med |
 | `obf.punycode-host` | medium | `xn--` / IDN homograph hosts in URLs | URL host scan | low |
@@ -112,7 +108,6 @@ on clean skills destroys trust faster than a missed trick helps.
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
 | `sec.env-var` | medium | references to `*_KEY`, `*_TOKEN`, `*_SECRET`, `AWS_*` env vars | regex on env access (the deferred split from `sec.env-read`) | low |
-| `sec.env-dump` | high | `printenv`, `env`, `set`, `Get-ChildItem Env:`, `/proc/self/environ` | regex | low |
 | `sec.wallet-access` | high | MetaMask/keystore/`wallet.dat`/seed-phrase paths | regex | low |
 | `sec.credential-store` | high | kubeconfig, `.git-credentials`, `.docker/config.json`, `.gnupg`, `.pgpass`, `.terraform`, shell history | path regex (extends today's list) | low |
 | `sec.clipboard-keychain` | medium | `xclip`, `pbpaste`, `Get-Clipboard`, `security find-generic-password`, `login.keychain-db` | regex | med |
@@ -135,7 +130,6 @@ on clean skills destroys trust faster than a missed trick helps.
 | ID | Sev | Detects (trigger) | Detection | FP |
 |---|---|---|---|---|
 | `exec.privesc` | high | `sudo`, `doas`, `pkexec`, `chmod u+s`, `setcap`, `runas` | regex | med |
-| `exec.persistence` | high | `crontab -`, `~/.bashrc`/`.zshrc` append, LaunchAgents, systemd unit, registry `Run`, Startup folder | regex + path | med |
 | `exec.miner` | high | `xmrig`, `stratum+tcp://`, Monero pools, `--donate-level` | regex | low |
 | `exec.encoded-shell` | critical | `powershell -enc`, `pwsh -EncodedCommand`, `base64 -d \| sh` | regex | low |
 | `exec.temp-exec` | high | write to `/tmp`/`$TMPDIR` → `chmod +x` → run | multi-line pipeline | med |

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { hardcodedSecretRule, secretAccessRule } from "../../src/rules/secretAccess.js";
+import {
+  envDumpRule,
+  hardcodedSecretRule,
+  secretAccessRule,
+} from "../../src/rules/secretAccess.js";
 import type { FileEntry } from "../../src/rules/types.js";
 
 function entry(content: string): FileEntry {
@@ -39,5 +43,17 @@ describe("sec.hardcoded-secret", () => {
     expect(hardcodedSecretRule.check(entry("token: ghp_examplexxxxxxxxxxxxxxxxxxxx"))).toHaveLength(
       0,
     );
+  });
+});
+
+describe("sec.env-dump", () => {
+  it("flags a full environment dump", () => {
+    const findings = envDumpRule.check(entry("printenv"));
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.severity).toBe("high");
+  });
+
+  it("ignores reading a single variable", () => {
+    expect(envDumpRule.check(entry('echo "$HOME"'))).toHaveLength(0);
   });
 });

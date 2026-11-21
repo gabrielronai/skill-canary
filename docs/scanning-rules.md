@@ -38,7 +38,7 @@ testable.
 - `evaluate(entries, { rules })` =
   `sortFindings(runRules(entries, selectRules(rules)))`.
 
-## The 33 rules
+## The 41 rules
 
 `skillcanary rules --json` prints this table as JSON; [`rules.json`](./rules.json)
 is the generated copy and must be refreshed with `npm run gen:rules` after any
@@ -49,17 +49,25 @@ rule change (a test fails if it drifts).
 | `inj.ignore-previous` | high | medium | all | line regex over `IMPERATIVE_PATTERNS` (ignore/disregard previous instructions, "do not tell the user", "without asking") |
 | `inj.hidden-instruction` | high | low | all | instruction keywords inside HTML comments (`<!-- … -->`) |
 | `inj.system-prompt` | medium | low | all | reveal/replace/ignore + "system prompt / your instructions" |
+| `inj.self-persist` | high | medium | all | self-referential persistence: "remember for all future conversations", "update your CLAUDE.md/AGENTS.md", "add to your memory" |
+| `inj.jailbreak-persona` | high | medium | all | jailbreak/persona phrasing: DAN, "unrestricted/developer/god mode", "you are now…", bypass safety/content filters |
 | `obf.zero-width` | high | high | all | zero-width/bidi format chars (`hasFormatChars`), snippet escaped as `\uXXXX` |
 | `obf.encoded-blob` | high | med/low | all | base64 (>= 40 chars) decoded and keyword-scanned; hex (>= 64) is lower confidence |
 | `obf.homoglyph` | medium | low | all | one token mixing Latin + Cyrillic/Greek (confusables) |
 | `obf.unicode-tag` | high | high | all | U+E0000–E007F tag chars, or runs of 8+ variation selectors; snippet escaped |
+| `obf.entity-encoded` | medium | low | all | runs of 6+ HTML numeric entities (`&#x…;`/`&#…;`) decoded and keyword-scanned |
+| `obf.percent-encoded` | medium | low | all | runs of 6+ `%hh` bytes decoded and keyword-scanned |
+| `obf.hex-escape` | medium | low | all | runs of 6+ `\xhh`/`\uhhhh` escapes decoded and keyword-scanned |
 | `sec.env-read` | high/med | medium | all | `.env`, AWS/SSH/gcloud/kube/docker/netrc/npmrc/keychain/cookies/shell history, `/etc/shadow` and `/etc/passwd` → high; secret-looking env access → medium |
 | `sec.hardcoded-secret` | high | medium | skill, script, config, instructions, agentconfig | literal `sk-`, `ghp_`, `AKIA`, `AIza`, `xox*`, private-key material; placeholder-aware, redacted |
+| `sec.env-dump` | high | low | all | `printenv`, `env`/`set` piped or redirected, `Get-ChildItem Env:`, `/proc/self/environ` |
 | `exec.destructive` | high | medium | skill, script, config, instructions, agentconfig | `rm -rf`, `mkfs`, `dd`, fork bomb, `chmod -R 777`, `shred`, `/dev/sd*` |
 | `exec.download-run` | critical | high | skill, script, config, instructions, agentconfig | `curl \| sh`, `iwr \| iex`, `bash <(curl …)` |
 | `exec.dynamic` | medium | low | skill, script, config, instructions, agentconfig | `eval(`, `exec(`, `new Function`, `child_process`, `os.system`, `popen` |
 | `exec.reverse-shell` | critical | high | skill, script, config, instructions, agentconfig | `/dev/tcp`, `nc -e`, `socat … exec:`, `bash -i >&`, PowerShell TCP client |
 | `exec.security-disable` | high | medium | skill, script, config, instructions, agentconfig | quarantine removal, `spctl --master-disable`, Defender exclusions, firewall/SELinux disable |
+| `exec.ssh-backdoor` | critical | high | skill, script, config, instructions, agentconfig | writes `authorized_keys`, or reverse SSH tunnel (`ssh -N -R`, `autossh -R`, `StrictHostKeyChecking=no`) |
+| `exec.persistence` | high | medium | skill, script, config, instructions, agentconfig | `@reboot`/crontab install, shell-rc append, LaunchAgents/Daemons plist, systemd unit, `schtasks /create`, Startup folder, registry Run |
 | `exf.outbound` | critical | medium | skill, script, config, instructions, agentconfig | a URL **and** a send verb/form in the same file (`curl -d/-F`, `requests.post`, `fetch(`, `scp`) |
 | `exf.webhook` | high | high | skill, script, config, instructions, agentconfig | known endpoints (Discord webhooks, webhook.site, requestbin, ngrok, paste sites, OAST, Canarytokens…) |
 | `exf.secret-to-network` | critical | high | skill, script, config, instructions | a credential path or env value **and** a network sink on the same line; bearer headers exempt |
@@ -152,7 +160,5 @@ Per the [`rule-backlog.md`](./rule-backlog.md) promotion checklist:
 
 - No shared pattern module - `IMPERATIVE_PATTERNS`, `DOWNLOAD_RUN_PATTERNS` are
   duplicated (**E1**).
-- Rule tables in README/site are hand-copied from `rules` output and can drift;
-  no machine-readable registry feeds them (**E4**).
 - Rules are per-entry only; no cross-file `corr.*` pass (**E2**), and no FP
   corpus harness (**E5**).

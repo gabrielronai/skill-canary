@@ -4,14 +4,14 @@ The package is publish-ready. The name is **`skillcanary`**; re-confirm it is
 still available, or pick a scope, before the first real publish (a public npm
 name must be globally unique).
 
-## Pre-publish status (2026-09-15)
+## Pre-publish status (2026-11-21)
 
 - Name **`skillcanary`** verified unclaimed on the public registry
   (`npm view skillcanary` → 404).
-- `package.json`: name, version `0.1.0`, description, `license` (Apache-2.0),
+- `package.json`: name, version `0.2.0`, description, `license` (Apache-2.0),
   `bin`, `files`, `publishConfig.access=public`, `repository`, `homepage`, and
   `bugs` (github.com/gabrielronai/skill-canary) are set.
-- `src/version.ts` `TOOL_VERSION` matches `package.json` (`0.1.0`).
+- `src/version.ts` `TOOL_VERSION` matches `package.json` (`0.2.0`).
 - `npm pack --dry-run` file list verified: `dist/**`, `action.yml`, `LICENSE`,
   `README.md`, `package.json`, `skills/skillcanary/SKILL.md`.
 - Not yet authenticated to npm on this machine (`npm login` required, 2FA).
@@ -19,7 +19,7 @@ name must be globally unique).
 ## Before the first publish
 
 1. `npm login` with an account that has 2FA enabled.
-2. Confirm the version (`0.1.0` for the first alpha) and the `LICENSE`
+2. Confirm the version (`0.2.0`) and the `LICENSE`
    (Apache-2.0).
 
 ## Publish
@@ -48,7 +48,7 @@ For a scoped name, `npx @scope/name scan .`.
 ## Versioning
 
 - Pre-1.0, bump the minor for new rules or behaviour changes and the patch for
-  fixes (`0.1.0` → `0.1.1` → `0.2.0`).
+  fixes (`0.2.0` → `0.2.1` → `0.3.0`).
 - Keep `src/version.ts` in sync with `package.json` `version`.
-- Releases are tagged `v0.1.0` and published on GitHub; tag `vX.Y.Z` after each
-  version bump.
+- Releases are tagged `vX.Y.Z` and published on GitHub (latest release `v0.1.0`);
+  tag after each version bump.

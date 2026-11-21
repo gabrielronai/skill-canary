@@ -101,4 +101,80 @@ const systemPromptRule: Rule = {
   },
 };
 
-export const injectionRules: Rule[] = [ignorePreviousRule, hiddenInstructionRule, systemPromptRule];
+const SELF_PERSIST_PATTERNS: RegExp[] = [
+  /\b(?:add|append|write|save|store|record)\b[^\n]{0,40}\b(?:to|into|in)\b[^\n]{0,20}\b(?:your|the|agent'?s?)\s+(?:long[- ]term\s+|persistent\s+)?memory\b/i,
+  /\bremember\b[^\n]{0,50}\b(?:for|in|across)\b[^\n]{0,20}\b(?:all|future|every|subsequent)\b[^\n]{0,20}\b(?:conversations?|sessions?|requests?|interactions?|chats?)\b/i,
+  /\b(?:update|modify|edit|append\s+to|write\s+to|add\s+to)\b[^\n]{0,30}\b(?:your|the)\s+(?:CLAUDE\.md|AGENTS\.md|GEMINI\.md|\.cursorrules|memory\s+file|system\s+prompt)\b/i,
+  /\bfor\s+all\s+(?:future|subsequent|following)\b[^\n]{0,20}\b(?:requests?|conversations?|sessions?|responses?|interactions?)\b/i,
+  /\b(?:in|across)\s+all\s+(?:future|subsequent)\b[^\n]{0,20}\b(?:responses?|conversations?|sessions?|requests?)\b/i,
+];
+
+const selfPersistRule: Rule = {
+  id: "inj.self-persist",
+  severity: "high",
+  confidence: "medium",
+  description: "Instructions that persist themselves into memory or other context files.",
+  check(entry: FileEntry): Finding[] {
+    const findings: Finding[] = [];
+    entry.lines.forEach((line, index) => {
+      if (SELF_PERSIST_PATTERNS.some((pattern) => pattern.test(line))) {
+        findings.push({
+          ruleId: "inj.self-persist",
+          severity: "high",
+          confidence: "medium",
+          message: "Instruction tries to persist itself across sessions or into other files.",
+          file: entry.path,
+          line: index + 1,
+          snippet: toSafeSnippet(line),
+          remediation:
+            "Remove self-propagating instructions; a skill must not rewrite memory or context.",
+        });
+      }
+    });
+    return findings;
+  },
+};
+
+const JAILBREAK_PATTERNS: RegExp[] = [
+  /\bdo\s+anything\s+now\b/i,
+  /\bDAN\b[^\n]{0,40}\b(?:jailbreak|mode|do anything)\b/i,
+  /\b(?:developer|unrestricted|god|jailbreak|uncensored|unfiltered)\s+mode\b/i,
+  /\byou\s+are\s+now\b[^\n]{0,50}\b(?:unrestricted|uncensored|unfiltered|free|dan|jailbroken|evil|amoral|without)\b/i,
+  /\b(?:bypass|disable|ignore|remove|turn\s+off|override)\b[^\n]{0,30}\b(?:content\s+filters?|safety\s+(?:rules|guidelines|filters|restrictions|measures)|guardrails|ethical\s+guidelines)\b/i,
+  /\b(?:no\s+rules\s+or\s+restrictions|without\s+any\s+(?:rules|restrictions|limits|guidelines|filters))\b/i,
+  /\b(?:pretend|act|behave)\b[^\n]{0,20}\b(?:to\s+be|as|like)\b[^\n]{0,40}\b(?:an?\s+(?:unrestricted|uncensored|unfiltered|evil|amoral)|AI\s+without\s+(?:safety|rules|restrictions))\b/i,
+  /\bfrom\s+now\s+on\b[^\n]{0,40}\b(?:ignore|bypass|disable)\b[^\n]{0,25}\b(?:all|any|your)\b[^\n]{0,20}\b(?:safety|rules|restrictions|guidelines)\b/i,
+];
+
+const jailbreakPersonaRule: Rule = {
+  id: "inj.jailbreak-persona",
+  severity: "high",
+  confidence: "medium",
+  description: "Jailbreak or persona-reassignment phrasing that removes safety constraints.",
+  check(entry: FileEntry): Finding[] {
+    const findings: Finding[] = [];
+    entry.lines.forEach((line, index) => {
+      if (JAILBREAK_PATTERNS.some((pattern) => pattern.test(line))) {
+        findings.push({
+          ruleId: "inj.jailbreak-persona",
+          severity: "high",
+          confidence: "medium",
+          message: "Jailbreak/persona phrasing attempts to remove safety constraints.",
+          file: entry.path,
+          line: index + 1,
+          snippet: toSafeSnippet(line),
+          remediation: "Remove jailbreak or role-override instructions from the skill.",
+        });
+      }
+    });
+    return findings;
+  },
+};
+
+export const injectionRules: Rule[] = [
+  ignorePreviousRule,
+  hiddenInstructionRule,
+  systemPromptRule,
+  selfPersistRule,
+  jailbreakPersonaRule,
+];

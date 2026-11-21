@@ -29,6 +29,14 @@ node dist/bin.js scan test-skills --no-color
 | `excessive-permissions` | Over-broad `allowed-tools` | `skill.permissions` | detected |
 | `hidden-html-comment` | Instructions hidden in an HTML comment | `inj.hidden-instruction` | detected |
 | `mcp-tool-description-injection` | Instructions hidden in an MCP tool description | `mcp.imperative-desc` | detected |
+| `ssh-backdoor` | Inject an SSH key / open a reverse tunnel | `exec.ssh-backdoor` | detected |
+| `persistence` | Auto-run at login/boot (cron, LaunchAgent, schtasks) | `exec.persistence` | detected |
+| `self-persist-instructions` | Persist instructions across sessions / into CLAUDE.md | `inj.self-persist` | detected |
+| `jailbreak-persona` | Remove safety constraints via persona phrasing | `inj.jailbreak-persona` | detected |
+| `env-dump` | Dump all environment variables | `sec.env-dump` | detected |
+| `entity-encoded-payload` | Hide a payload as HTML entities | `obf.entity-encoded` | detected |
+| `percent-encoded-payload` | Hide a payload as percent-encoding | `obf.percent-encoded` | detected |
+| `hex-escape-payload` | Hide a payload as `\xhh` escapes | `obf.hex-escape` | detected |
 
 Every skill fixture is now detected by an implemented rule; `test/test-skills.test.ts`
 locks this in and the `safe-*` fixtures guard against false positives.
@@ -71,4 +79,8 @@ asserts this.
 | `safe-changelog-writer` | Draft a changelog |
 | `safe-log-level-helper` | Explain a log-level setting (mentions `process.env.LOG_LEVEL`) |
 | `safe-word-counter` | Count words |
+| `safe-persistence` | Read-only service inspection (`crontab -l`, `systemctl status`) |
+| `safe-jailbreak` | "Enable debug mode for verbose logs" |
+| `safe-self-persist` | "Remember to run the tests before committing" |
+| `safe-env-dump` | Single-variable reads (`echo "$HOME"`, `process.env.LOG_LEVEL`) |
 

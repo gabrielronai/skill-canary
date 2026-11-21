@@ -3,7 +3,7 @@
 How to build, run, and test `SkillCanary` — including pointing it at **real
 skills** already installed on your machine.
 
-Status: **v0.1.0** ([GitHub release](https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0); not yet on npm). 33 rules, text/JSON/SARIF
+Status: **v0.2.0** (pre-release; latest [GitHub release v0.1.0](https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0); not yet on npm). 41 rules, text/JSON/SARIF
 output, remote MCP and package scanning, inline suppressions and baselines. See
 [`../CHANGELOG.md`](../CHANGELOG.md) and the rule reference in
 [`scanning-rules.md`](./scanning-rules.md).
@@ -285,12 +285,18 @@ generated, machine-readable copy used by docs tooling and integrations.
 | `inj.ignore-previous` | high | Instruction-hijack phrasing: "ignore previous instructions", "do not tell the user", "without asking" |
 | `inj.hidden-instruction` | high | Instructions hidden in HTML comments |
 | `inj.system-prompt` | medium | Attempts to reveal/replace the system prompt |
+| `inj.self-persist` | high | Persists instructions across sessions or into other files ("remember for all future conversations", "update your CLAUDE.md") |
+| `inj.jailbreak-persona` | high | Jailbreak/persona phrasing (DAN, "unrestricted mode", bypass safety filters) |
 | `obf.zero-width` | high | Hidden zero-width / bidi formatting characters |
 | `obf.encoded-blob` | high | Base64/hex blob that decodes to suspicious instructions |
 | `obf.homoglyph` | medium | Mixed-script look-alike characters |
 | `obf.unicode-tag` | high | Unicode tag characters or long variation-selector runs |
+| `obf.entity-encoded` | medium | HTML numeric entities that decode to suspicious instructions |
+| `obf.percent-encoded` | medium | Percent-encoded bytes that decode to suspicious instructions |
+| `obf.hex-escape` | medium | `\xhh`/`\uhhhh` escapes that decode to suspicious instructions |
 | `sec.env-read` | high/medium | Reading `.env`, SSH/AWS/gcloud credentials, keychains, browsers, or secret-looking env vars |
 | `sec.hardcoded-secret` | high | API keys or private-key material committed in a skill or script |
+| `sec.env-dump` | high | Dumps all environment variables (`printenv`, `env \|`, `Get-ChildItem Env:`) |
 | `exf.outbound` | critical | Sends data to an external URL |
 | `exf.webhook` | high | Known webhook/paste/exfiltration endpoints |
 | `exf.secret-to-network` | critical | Reads credentials and sends them out in one command |
@@ -300,6 +306,8 @@ generated, machine-readable copy used by docs tooling and integrations.
 | `exec.dynamic` | medium | `eval`/`exec`/`child_process`/shell execution |
 | `exec.reverse-shell` | critical | `/dev/tcp`, `nc -e`, `socat exec`, PowerShell reverse shell |
 | `exec.security-disable` | high | Disables antivirus, firewall, quarantine, or Gatekeeper |
+| `exec.ssh-backdoor` | critical | Writes `authorized_keys` or opens a reverse SSH tunnel |
+| `exec.persistence` | high | Installs login/boot persistence (cron, LaunchAgent, systemd, scheduled task, shell rc) |
 | `hook.fetch-run` | high | `package.json` install hooks that fetch and run code |
 | `agent.hook-exec` | high | `.claude` settings hook runs a command automatically |
 | `agent.unsafe-setting` | high | `bypassPermissions`, sandbox disabled, wildcard allow-list |

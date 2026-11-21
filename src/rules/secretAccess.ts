@@ -131,3 +131,38 @@ export const hardcodedSecretRule: Rule = {
     return findings;
   },
 };
+
+// --- sec.env-dump --------------------------------------------------------------
+
+const ENV_DUMP_PATTERNS: RegExp[] = [
+  /\bprintenv\b/,
+  /(?:^|[|;&]\s*|\bsudo\s+)(?:env|set)\b\s*(?:\||>)/i,
+  /\bGet-ChildItem\s+Env:/i,
+  /\b(?:dir|gci|ls)\s+env:/i,
+  /\/proc\/self\/environ\b/,
+];
+
+export const envDumpRule: Rule = {
+  id: "sec.env-dump",
+  severity: "high",
+  confidence: "low",
+  description: "Dumps the whole environment, which can expose every secret it holds.",
+  check(entry: FileEntry): Finding[] {
+    const findings: Finding[] = [];
+    entry.lines.forEach((line, index) => {
+      if (ENV_DUMP_PATTERNS.some((pattern) => pattern.test(line))) {
+        findings.push({
+          ruleId: "sec.env-dump",
+          severity: "high",
+          confidence: "low",
+          message: "Dumps all environment variables, which may include secrets.",
+          file: entry.path,
+          line: index + 1,
+          snippet: toSafeSnippet(line),
+          remediation: "Read only the specific variables needed; never dump the whole environment.",
+        });
+      }
+    });
+    return findings;
+  },
+};

@@ -73,6 +73,17 @@ describe("malicious skill fixtures (M0 detections)", () => {
     expect(ruleIds("instruction-file-injection").has("inj.ignore-previous")).toBe(true);
     expect(ruleIds("mcp-tool-schema-injection").has("mcp.schema-injection")).toBe(true);
   });
+
+  it("flags the November 2026 batch fixtures", () => {
+    expect(ruleIds("ssh-backdoor").has("exec.ssh-backdoor")).toBe(true);
+    expect(ruleIds("persistence").has("exec.persistence")).toBe(true);
+    expect(ruleIds("self-persist-instructions").has("inj.self-persist")).toBe(true);
+    expect(ruleIds("jailbreak-persona").has("inj.jailbreak-persona")).toBe(true);
+    expect(ruleIds("env-dump").has("sec.env-dump")).toBe(true);
+    expect(ruleIds("entity-encoded-payload").has("obf.entity-encoded")).toBe(true);
+    expect(ruleIds("percent-encoded-payload").has("obf.percent-encoded")).toBe(true);
+    expect(ruleIds("hex-escape-payload").has("obf.hex-escape")).toBe(true);
+  });
 });
 
 describe("safe skill fixtures (no false positives)", () => {

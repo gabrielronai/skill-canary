@@ -29,6 +29,24 @@
       ]
     },
     {
+      "id": "inj.self-persist",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Instructions that persist themselves into memory or other context files.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "inj.jailbreak-persona",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Jailbreak or persona-reassignment phrasing that removes safety constraints.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
       "id": "obf.zero-width",
       "severity": "high",
       "confidence": "high",
@@ -65,6 +83,33 @@
       ]
     },
     {
+      "id": "obf.entity-encoded",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "HTML-entity-encoded text that decodes to suspicious instructions.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.percent-encoded",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Percent-encoded text that decodes to suspicious instructions.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
+      "id": "obf.hex-escape",
+      "severity": "medium",
+      "confidence": "low",
+      "description": "Hex/unicode escape sequences that decode to suspicious instructions.",
+      "kinds": [
+        "all"
+      ]
+    },
+    {
       "id": "sec.env-read",
       "severity": "high",
       "confidence": "medium",
@@ -84,6 +129,15 @@
         "config",
         "instructions",
         "agentconfig"
+      ]
+    },
+    {
+      "id": "sec.env-dump",
+      "severity": "high",
+      "confidence": "low",
+      "description": "Dumps the whole environment, which can expose every secret it holds.",
+      "kinds": [
+        "all"
       ]
     },
     {
@@ -143,6 +197,32 @@
       "severity": "high",
       "confidence": "medium",
       "description": "Disables an OS security control.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.ssh-backdoor",
+      "severity": "critical",
+      "confidence": "high",
+      "description": "Installs an SSH key backdoor or a reverse SSH tunnel.",
+      "kinds": [
+        "skill",
+        "script",
+        "config",
+        "agentconfig",
+        "instructions"
+      ]
+    },
+    {
+      "id": "exec.persistence",
+      "severity": "high",
+      "confidence": "medium",
+      "description": "Installs autostart persistence (cron, rc, launchd, systemd, task, registry).",
       "kinds": [
         "skill",
         "script",

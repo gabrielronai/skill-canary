@@ -50,6 +50,14 @@ They are listed in `.scannerignore` so they do **not** fail the repo's own
 | 21 | `agent-startup-hook` | Auto-run a hook from repo settings | `agent.hook-exec`, `agent.unsafe-setting` | detected |
 | 22 | `instruction-file-injection` | Inject instructions in `AGENTS.md` | `inj.ignore-previous` | detected |
 | 23 | `mcp-tool-schema-injection` | Hide instructions in an input schema | `mcp.schema-injection` | detected |
+| 24 | `ssh-backdoor` | Inject an SSH key / open a reverse tunnel | `exec.ssh-backdoor` | detected |
+| 25 | `persistence` | Auto-run at login/boot (cron, LaunchAgent, task) | `exec.persistence` | detected |
+| 26 | `self-persist-instructions` | Persist instructions across sessions / into CLAUDE.md | `inj.self-persist` | detected |
+| 27 | `jailbreak-persona` | Remove safety constraints via a persona | `inj.jailbreak-persona` | detected |
+| 28 | `env-dump` | Dump all environment variables | `sec.env-dump` | detected |
+| 29 | `entity-encoded-payload` | Hide instructions as HTML entities | `obf.entity-encoded` | detected |
+| 30 | `percent-encoded-payload` | Hide instructions as percent-encoding | `obf.percent-encoded` | detected |
+| 31 | `hex-escape-payload` | Hide instructions as hex escapes | `obf.hex-escape` | detected |
 
 All fixtures are now detected by an implemented rule; the `safe-*` fixtures guard
 against false positives.
@@ -78,6 +86,10 @@ directory dynamically and asserts each produces no findings.
 | `safe-agent-settings` | Legitimate project settings | scoped `permissions.allow`, no hooks |
 | `safe-agent-instructions` | Legitimate `AGENTS.md` | plain style guidance, no imperative override |
 | `safe-model-endpoint` | Official model endpoint override | `ANTHROPIC_BASE_URL=https://api.anthropic.com` |
+| `safe-persistence` | Read-only service inspection | `crontab -l`, `systemctl status`, `launchctl list` |
+| `safe-jailbreak` | Verbose logging | "Enable debug mode for verbose logs" |
+| `safe-self-persist` | Normal reminders | "Remember to run the tests before committing" |
+| `safe-env-dump` | Single-variable reads | `echo "$HOME"`, `process.env.LOG_LEVEL` |
 
 When you add a rule, confirm both directions: the intended malicious fixtures
 fire and the `safe-*` fixtures stay quiet.
@@ -202,7 +214,7 @@ Safe MCP fixtures (must report zero findings): `safe-mcp-https-pinned`,
 
 ```
 $ node dist/bin.js scan test-skills --no-color
-43 finding(s): 9 critical, 28 high, 4 medium, 2 low
+56 finding(s): 11 critical, 36 high, 7 medium, 2 low
 exit=1
 ```
 
