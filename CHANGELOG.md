@@ -11,7 +11,7 @@ explicitly, since they can change whether a build passes.
 
 ## [0.2.0] - 2026-11-21
 
-Ruleset change: **33 → 41 rules** (eight new detections). Pre-release; not yet
+Ruleset change: **33 → 41 rules** (eight new detections). Not yet
 published to npm.
 
 ### Added

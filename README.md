@@ -10,7 +10,7 @@ never executes the content it scans.
 
 ## Status
 
-**v0.2.0 — pre-release. Latest release: [v0.1.0 on GitHub](https://github.com/gabrielronai/skill-canary/releases/tag/v0.1.0); not yet on npm.** Working: 41 rules across injection,
+**v0.2.0 — [released on GitHub](https://github.com/gabrielronai/skill-canary/releases/tag/v0.2.0); not yet on npm.** Working: 41 rules across injection,
 obfuscation, secrets, execution, exfiltration, install hooks, agent config,
 skills and instruction files, skill hygiene, and MCP (structural + live remote);
 discovery of skills, MCP configs, scripts, `package.json` hooks, `.claude`
